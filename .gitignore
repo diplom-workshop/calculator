@@ -8,3 +8,10 @@ node_modules/
 .cache/
 .claude/
 test.html
+
+# Diagnostic files
+deployed*.html
+new-deployed*.html
+new2.html
+new-deployed2.html
+.build-tmp/
