@@ -114,8 +114,14 @@ body {
   gap: 10px;
   width: 100%;
 }
-@media (min-width: 880px) { .cards { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
-@media (max-width: 540px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } }
+/* без сайдбара — широкая полоса, помещаются 6 в ряд */
+@media (min-width: 880px) and (max-width: 1179px) {
+  .cards { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+/* при сайдбаре: 3 колонки — иначе текст карточек не помещается */
+@media (max-width: 540px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+}
 
 .card {
   background: var(--paper);
@@ -596,35 +602,41 @@ input[type=range]:disabled::-moz-range-thumb { background: var(--ink-mute); bord
 
 /* DEADLINE */
 .deadline-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 18px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "label label"
+    "value badge";
+  gap: 6px 16px;
   margin-bottom: 22px;
-  flex-wrap: nowrap;
+  align-items: center;
 }
-.deadline-main { flex: 1; min-width: 0; }
+.deadline-main { display: contents; }
 @media (max-width: 540px) {
-  .deadline-head { gap: 12px; }
+  .deadline-head { gap: 4px 12px; }
   .urgency-badge { padding: 9px 12px; min-width: 84px; }
   .urgency-badge .urgency-pct { font-size: 19px; }
   .urgency-badge .urgency-text { font-size: 8px; letter-spacing: 0.14em; }
 }
 .deadline-main-label {
+  grid-area: label;
   font-size: 11px;
   letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--ink-mute);
   font-weight: 600;
-  margin-bottom: 8px;
+  white-space: nowrap;
 }
 .deadline-main-value {
+  grid-area: value;
   display: flex;
   align-items: baseline;
   gap: 6px;
 }
 
 .urgency-badge {
+  grid-area: badge;
+  align-self: center;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
