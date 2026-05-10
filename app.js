@@ -319,6 +319,27 @@ function App() {
   const deadlineRef = useRef(null);
   const orderRef = useRef(null);
   const calcRef = useRef(null);
+  const mainPanelRef = useRef(null);
+  const otherPanelRef = useRef(null);
+
+  // Мобильный автоскролл к раскрывшимся панелям после выбора работы / "Других работ"
+  useEffect(() => {
+    if (!mainWork) return;
+    if (typeof window === 'undefined' || window.innerWidth >= 720) return;
+    const t = setTimeout(() => {
+      if (mainPanelRef.current) smoothScrollTo(mainPanelRef.current, 1500);
+    }, 220);
+    return () => clearTimeout(t);
+  }, [mainWork]);
+
+  useEffect(() => {
+    if (!showAdd) return;
+    if (typeof window === 'undefined' || window.innerWidth >= 720) return;
+    const t = setTimeout(() => {
+      if (otherPanelRef.current) smoothScrollTo(otherPanelRef.current, 1500);
+    }, 220);
+    return () => clearTimeout(t);
+  }, [showAdd]);
 
   // Подгрузить промокоды с сервера
   useEffect(() => {
@@ -666,7 +687,8 @@ function App() {
   }, "+"), /*#__PURE__*/React.createElement("span", {
     className: "card-title"
   }, "\u0414\u0440\u0443\u0433\u0438\u0435 \u0440\u0430\u0431\u043E\u0442\u044B"))), /*#__PURE__*/React.createElement("div", {
-    className: "expand" + (mainWorkData ? " open" : "")
+    className: "expand" + (mainWorkData ? " open" : ""),
+    ref: mainPanelRef
   }, /*#__PURE__*/React.createElement("div", {
     className: "expand-inner"
   }, /*#__PURE__*/React.createElement("div", {
@@ -760,7 +782,8 @@ function App() {
     value: mainWorkData ? clampPages(partialPages, 1, mainWorkData.maxPages) : partialPages,
     onChange: e => setPartialPages(+e.target.value)
   }))))))))), /*#__PURE__*/React.createElement("div", {
-    className: "expand" + (showAdd ? " open" : "")
+    className: "expand" + (showAdd ? " open" : ""),
+    ref: otherPanelRef
   }, /*#__PURE__*/React.createElement("div", {
     className: "expand-inner"
   }, /*#__PURE__*/React.createElement("div", {

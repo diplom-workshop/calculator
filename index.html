@@ -598,11 +598,17 @@ input[type=range]:disabled::-moz-range-thumb { background: var(--ink-mute); bord
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 28px;
+  gap: 18px;
   margin-bottom: 22px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
-.deadline-main { flex: 1; min-width: 220px; }
+.deadline-main { flex: 1; min-width: 0; }
+@media (max-width: 540px) {
+  .deadline-head { gap: 12px; }
+  .urgency-badge { padding: 9px 12px; min-width: 84px; }
+  .urgency-badge .urgency-pct { font-size: 19px; }
+  .urgency-badge .urgency-text { font-size: 8px; letter-spacing: 0.14em; }
+}
 .deadline-main-label {
   font-size: 11px;
   letter-spacing: 0.32em;
