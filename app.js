@@ -204,6 +204,7 @@ const MONTHS = [{
   discount: 0
 }];
 const PROMO_CODE = 'DIPLOMA2026';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpMgh7uflqSwuhxEyxYWhNMShGx0IgTlmksWn2j-DQFUz9ZFr3M0GbMkb9GNwat3jK/exec';
 const PROMO_DISCOUNT = 10;
 const VK_LINK = 'https://vk.com/diplom_workshop';
 const COLOR = {
@@ -321,7 +322,7 @@ function App() {
 
   // Подгрузить промокоды с сервера
   useEffect(() => {
-    fetch('/api/promos').then(r => r.ok ? r.json() : null).then(j => {
+    fetch(APPS_SCRIPT_URL).then(r => r.ok ? r.json() : null).then(j => {
       if (j && j.promos && typeof j.promos === 'object') {
         setServerPromos(j.promos);
       }
@@ -597,12 +598,14 @@ function App() {
     };
     setSubmitting(true);
     try {
-      const r = await fetch('/api/order', {
+      // text/plain — чтобы избежать CORS preflight (Apps Script плохо его обрабатывает)
+      const r = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'text/plain;charset=utf-8'
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        redirect: 'follow'
       });
       const json = await r.json().catch(() => ({}));
       if (!r.ok) {
