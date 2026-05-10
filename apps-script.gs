@@ -19,6 +19,11 @@ const PROMOS_SHEET = 'Промокоды';
 const TG_TOKEN = 'PASTE_BOT_TOKEN_HERE';
 const TG_CHAT  = 'PASTE_CHAT_ID_HERE';
 
+// Мониторинг — после скольки минут без heartbeat'а считаем что бот молчит
+const BOT_HEARTBEAT_THRESHOLD_MIN = 10;
+// Сколько минут не повторять алерт «бот молчит» после первого
+const BOT_ALERT_COOLDOWN_MIN = 30;
+
 // ================== /НАСТРОЙКИ =================
 
 
@@ -59,7 +64,7 @@ function doGet(e) {
 }
 
 
-// === POST: запись новой заявки в лист "Заявки" + отправка в Telegram ===
+// === POST: либо heartbeat от бота, либо новая заявка с калькулятора ===
 function doPost(e) {
   try {
     if (!e || !e.postData || !e.postData.contents) {
@@ -68,7 +73,16 @@ function doPost(e) {
 
     const data = JSON.parse(e.postData.contents);
 
-    // Валидация
+    // === Heartbeat от бота: сохраняем timestamp и выходим ===
+    if (data.type === 'heartbeat') {
+      PropertiesService.getScriptProperties().setProperty(
+        'lastBotHeartbeat',
+        String(new Date().getTime())
+      );
+      return jsonResponse({ ok: true, type: 'heartbeat' });
+    }
+
+    // === Иначе — заявка с калькулятора ===
     const name = String(data.name || '').trim();
     const contact = String(data.contact || '').trim();
     const comment = String(data.comment || '').trim();
@@ -219,6 +233,79 @@ function formatTelegramMessage(data) {
 
   return lines.join('\n');
 }
+
+
+// ===================== МОНИТОРИНГ БОТА =====================
+// Эту функцию нужно повесить на time-trigger в Apps Script:
+//   "Триггеры (значок часов слева) → + Триггер →
+//    Функция: checkBotAlive
+//    Источник события: По времени → Минутный таймер → Каждые 10 минут"
+
+function checkBotAlive() {
+  const props = PropertiesService.getScriptProperties();
+  const lastHbStr = props.getProperty('lastBotHeartbeat');
+  if (!lastHbStr) {
+    // Бот ещё ни разу не сообщил «я жив» — игнорируем (свежее развёртывание).
+    return;
+  }
+
+  const lastHb = parseInt(lastHbStr, 10);
+  const now = new Date().getTime();
+  const ageMin = Math.floor((now - lastHb) / 60000);
+
+  if (ageMin < BOT_HEARTBEAT_THRESHOLD_MIN) {
+    // Свежий heartbeat, всё хорошо. Заодно сбросим cooldown.
+    props.deleteProperty('lastBotAlert');
+    return;
+  }
+
+  // Антиспам: не чаще чем раз в BOT_ALERT_COOLDOWN_MIN
+  const lastAlertStr = props.getProperty('lastBotAlert');
+  if (lastAlertStr) {
+    const lastAlert = parseInt(lastAlertStr, 10);
+    if ((now - lastAlert) < BOT_ALERT_COOLDOWN_MIN * 60 * 1000) {
+      return;
+    }
+  }
+
+  const message =
+    '⚠️ <b>Бот молчит</b>\n' +
+    'Последний heartbeat был ' + ageMin + ' мин назад.\n' +
+    'Зайди на VPS и проверь:\n' +
+    '<code>systemctl status bot</code>';
+
+  try {
+    sendTelegramRaw(message);
+    props.setProperty('lastBotAlert', String(now));
+  } catch (err) {
+    // Логируем в Apps Script execution log
+    console.error('Не удалось отправить алерт в Telegram: ' + err);
+  }
+}
+
+function sendTelegramRaw(text) {
+  if (!TG_TOKEN || !TG_CHAT) {
+    throw new Error('TG_TOKEN или TG_CHAT не заданы');
+  }
+  const url = 'https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage';
+  const response = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify({
+      chat_id: TG_CHAT,
+      text: text,
+      parse_mode: 'HTML',
+      disable_web_page_preview: true
+    }),
+    muteHttpExceptions: true
+  });
+  const code = response.getResponseCode();
+  if (code !== 200) {
+    throw new Error('Telegram HTTP ' + code + ': ' + response.getContentText().slice(0, 200));
+  }
+}
+
+// ===================== /МОНИТОРИНГ БОТА ====================
 
 
 // === Вспомогательные ===
