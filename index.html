@@ -1,0 +1,2544 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор стоимости — Дипломная мастерская</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+:root {
+  --bg: #F5F0E8;
+  --paper: #FFFFFF;
+  --paper-soft: #FAF6EC;
+  --red: #C8102E;
+  --red-dark: #9F0C24;
+  --red-light: #E6213D;
+  --red-tint: rgba(200, 16, 46, 0.07);
+  --ink: #1A1410;
+  --ink-soft: #4A4540;
+  --ink-mute: #908A82;
+  --line: #D8CFB8;
+  --line-soft: #E6DDC8;
+  --line-faint: rgba(216, 207, 184, 0.45);
+  --zone-good: #5C9170;
+  --zone-warn: #D4A857;
+  --zone-bad: #C97D3F;
+  --zone-crit: #C8102E;
+  --shadow-sm: 0 2px 6px rgba(26, 20, 16, 0.06);
+  --shadow-md: 0 8px 24px rgba(26, 20, 16, 0.07);
+  --shadow-lg: 0 -10px 36px rgba(26, 20, 16, 0.10);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --thumb-w: 20px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html {
+  scroll-behavior: auto;
+  scrollbar-gutter: stable;
+}
+body {
+  font-family: 'Manrope', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  padding-bottom: 110px;
+  font-variant-numeric: lining-nums;
+  font-feature-settings: 'lnum';
+}
+@media (max-width: 720px) { body { padding-bottom: 130px; } }
+
+.app {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 18px 32px 64px;
+}
+@media (max-width: 720px) { .app { padding: 14px 16px 48px; } }
+
+/* TOPBAR */
+.topbar {
+  text-align: center;
+  padding: 24px 0 30px;
+  margin-bottom: 38px;
+  border-bottom: 1px solid var(--line-faint);
+}
+.topbar-main {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 54px;
+  font-weight: 600;
+  color: var(--red);
+  letter-spacing: -0.025em;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.topbar-brand {
+  font-size: 10px;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: 500;
+}
+@media (max-width: 720px) {
+  .topbar { padding: 18px 0 22px; margin-bottom: 26px; }
+  .topbar-main { font-size: 38px; margin-bottom: 8px; }
+}
+@media (max-width: 420px) { .topbar-main { font-size: 32px; } }
+
+/* BLOCK */
+.block { margin-bottom: 36px; }
+.block-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 22px;
+  letter-spacing: -0.015em;
+  text-align: center;
+}
+.block-title.left { text-align: left; }
+@media (max-width: 720px) {
+  .block-title { font-size: 24px; margin-bottom: 16px; }
+  .block { margin-bottom: 28px; }
+}
+
+/* CARDS */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+@media (min-width: 880px) { .cards { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+@media (max-width: 540px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } }
+
+.card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 18px 16px 20px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s var(--ease), box-shadow 0.25s ease, color 0.25s ease;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  min-height: 116px;
+  display: flex;
+  flex-direction: column;
+}
+.card:hover {
+  border-color: var(--red-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.card.selected {
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--paper);
+}
+.card.selected:hover { background: var(--red-dark); border-color: var(--red-dark); }
+.card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: auto;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  padding-right: 18px;
+}
+.card-price-label {
+  font-size: 10px;
+  color: var(--ink-mute);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-top: 16px;
+  margin-bottom: 4px;
+}
+.card.selected .card-price-label { color: rgba(255, 255, 255, 0.7); }
+.card-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--red);
+  letter-spacing: -0.01em;
+}
+.card.selected .card-price { color: var(--paper); }
+
+.card-deselect {
+  position: absolute;
+  top: 9px;
+  right: 11px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 400;
+  line-height: 1;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.card.selected:hover .card-deselect { color: var(--paper); transform: scale(1.15); }
+
+.card-other {
+  border-style: dashed;
+  border-color: var(--ink-mute);
+  background: transparent;
+  justify-content: center;
+  align-items: center;
+}
+.card-other .card-title {
+  color: var(--ink);
+  margin: 0;
+  padding-right: 0;
+  text-align: center;
+}
+.card-other:hover { border-color: var(--red); background: var(--paper-soft); }
+.card-other.open { background: var(--red-tint); border-color: var(--red); border-style: solid; }
+.card-other-plus {
+  font-family: 'Manrope', sans-serif;
+  font-size: 30px;
+  color: var(--red);
+  font-weight: 300;
+  line-height: 1;
+  margin-bottom: 12px;
+  transition: transform 0.5s var(--ease);
+}
+.card-other.open .card-other-plus { transform: rotate(45deg); }
+
+/* EXPAND */
+.expand {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.7s var(--ease), opacity 0.55s ease, margin-top 0.6s var(--ease);
+  opacity: 0;
+  margin-top: 0;
+}
+.expand.open { grid-template-rows: 1fr; opacity: 1; margin-top: 18px; }
+.expand-inner { overflow: hidden; min-height: 0; }
+
+/* PANEL */
+.panel {
+  padding: 28px 32px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  position: relative;
+  width: 100%;
+}
+@media (max-width: 720px) { .panel { padding: 22px 20px; } }
+
+/* FIELDS */
+.field { margin-bottom: 26px; }
+.field:last-child { margin-bottom: 0; }
+.field-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.field-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+.field-value {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--red);
+  font-size: 22px;
+  font-weight: 700;
+  font-feature-settings: 'lnum', 'tnum';
+  line-height: 1;
+}
+.field-value.muted { color: var(--ink-mute); }
+.field-hint {
+  font-size: 13px;
+  color: var(--ink-mute);
+  margin-top: 12px;
+  line-height: 1.5;
+}
+.field-hint .accent { color: var(--ink); font-weight: 600; }
+
+/* NUM INPUT — editable values, look like input boxes */
+.num-unit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--red);
+  line-height: 1;
+}
+.num-unit.muted { color: var(--ink-mute); }
+.num-unit .unit { font-size: inherit; font-weight: inherit; color: inherit; line-height: 1; }
+.num-input {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--red);
+  background: var(--paper-soft);
+  border: 1px dashed var(--line);
+  border-radius: 4px;
+  text-align: center;
+  width: 70px;
+  font-feature-settings: 'lnum', 'tnum';
+  font-variant-numeric: lining-nums tabular-nums;
+  outline: none;
+  padding: 5px 8px;
+  line-height: 1;
+  -moz-appearance: textfield;
+  appearance: textfield;
+  transition: all 0.2s ease;
+}
+.num-input::-webkit-outer-spin-button,
+.num-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.num-input:hover:not(:disabled) { border-color: var(--red-light); }
+.num-input:focus { border-color: var(--red); border-style: solid; background: var(--paper); }
+.num-input.muted, .num-input:disabled {
+  color: var(--ink-mute);
+  cursor: not-allowed;
+  background: transparent;
+  border-color: var(--line-faint);
+}
+
+/* DEADLINE — editable num, boxed (slightly bigger than num-input) */
+.deadline-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--red);
+  background: var(--paper-soft);
+  border: 1px dashed var(--line);
+  border-radius: 5px;
+  text-align: center;
+  width: 88px;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  padding: 6px 10px;
+  outline: none;
+  font-feature-settings: 'lnum', 'tnum';
+  font-variant-numeric: lining-nums tabular-nums;
+  -moz-appearance: textfield;
+  appearance: textfield;
+  transition: all 0.2s ease;
+}
+.deadline-num::-webkit-outer-spin-button,
+.deadline-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.deadline-num:hover { border-color: var(--red-light); }
+.deadline-num:focus { border-color: var(--red); border-style: solid; background: var(--paper); }
+.deadline-unit {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: 0;
+}
+@media (max-width: 540px) {
+  .deadline-num { font-size: 24px; width: 78px; padding: 5px 8px; }
+  .deadline-unit { font-size: 17px; }
+}
+
+/* SLIDER */
+.range-wrap {
+  position: relative;
+  height: 30px;
+  display: flex;
+  align-items: center;
+}
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--track-bg, var(--line));
+  transition: opacity 0.25s ease;
+}
+input[type=range]::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--track-bg, var(--line));
+  border: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  margin-top: -7px;
+  box-shadow: 0 2px 6px rgba(26, 20, 16, 0.20);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.18); background: var(--ink); }
+input[type=range]::-webkit-slider-thumb:active { transform: scale(1.1); }
+input[type=range]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(26, 20, 16, 0.20);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+input[type=range]::-moz-range-thumb:hover { transform: scale(1.18); background: var(--ink); }
+input[type=range]:disabled { cursor: not-allowed; opacity: 0.45; }
+input[type=range]:disabled::-webkit-slider-runnable-track { background: var(--line); }
+input[type=range]:disabled::-webkit-slider-thumb { background: var(--ink-mute); border-color: var(--ink-mute); cursor: not-allowed; }
+input[type=range]:disabled::-moz-range-track { background: var(--line); }
+input[type=range]:disabled::-moz-range-thumb { background: var(--ink-mute); border-color: var(--ink-mute); }
+
+/* CHECKBOX */
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 15px;
+  color: var(--ink);
+  line-height: 1.4;
+  position: relative;
+}
+.checkbox input,
+.stat-item input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+}
+.checkbox-mark {
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--red);
+  background: var(--paper);
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  border-radius: 3px;
+}
+.checkbox:hover .checkbox-mark,
+.stat-item:hover .checkbox-mark { background: var(--paper-soft); }
+.checkbox input:checked ~ .checkbox-mark,
+.stat-item input:checked ~ .checkbox-mark { background: var(--red); }
+.checkbox input:checked ~ .checkbox-mark::after,
+.stat-item input:checked ~ .checkbox-mark::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--paper);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.checkbox input:focus-visible ~ .checkbox-mark,
+.stat-item input:focus-visible ~ .checkbox-mark {
+  outline: 2px solid var(--red-light);
+  outline-offset: 2px;
+}
+
+/* OTHER LIST */
+.other-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+  letter-spacing: -0.005em;
+}
+.add-list { display: flex; flex-direction: column; }
+.add-item { padding: 16px 0; border-bottom: 1px solid var(--line-faint); }
+.add-item:first-child { padding-top: 8px; }
+.add-item-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.add-item-name { flex: 1; font-size: 16px; }
+.add-item-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--red);
+  white-space: nowrap;
+  letter-spacing: -0.005em;
+}
+.add-item-controls {
+  margin-top: 14px;
+  padding-left: 32px;
+}
+@media (max-width: 720px) { .add-item-controls { padding-left: 0; } }
+
+/* SPOILER ROW (used inside add-list for stats / articles) */
+.spoiler-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--ink);
+  text-align: left;
+  padding: 0;
+  flex: 1;
+  user-select: none;
+  line-height: 1.4;
+  transition: color 0.2s ease;
+}
+.spoiler-row:hover { color: var(--red); }
+.spoiler-mark {
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--red);
+  background: var(--paper);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Manrope', sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--red);
+  line-height: 1;
+  flex-shrink: 0;
+  transition: all 0.5s var(--ease);
+}
+.spoiler-row.open .spoiler-mark {
+  background: var(--red);
+  color: var(--paper);
+  transform: rotate(45deg);
+}
+
+.sub-list {
+  padding: 8px 0 4px 32px;
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 720px) { .sub-list { padding-left: 0; } }
+.sub-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid var(--line-faint);
+  font-size: 15px;
+  color: var(--ink);
+  position: relative;
+  line-height: 1.45;
+  transition: padding-left 0.2s ease;
+}
+.sub-item:hover { padding-left: 4px; }
+.sub-item:last-child { border-bottom: none; }
+.sub-item input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+}
+.sub-item input:checked ~ .checkbox-mark { background: var(--red); }
+.sub-item input:checked ~ .checkbox-mark::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--paper);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.sub-item-name { flex: 1; }
+.sub-item-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  color: var(--red);
+  font-size: 17px;
+  white-space: nowrap;
+  letter-spacing: -0.005em;
+  font-feature-settings: 'lnum', 'tnum';
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* DEADLINE */
+.deadline-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+.deadline-main { flex: 1; min-width: 220px; }
+.deadline-main-label {
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.deadline-main-value {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.urgency-badge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 16px;
+  background: var(--paper-soft);
+  border: 1.5px solid var(--line);
+  min-width: 100px;
+  transition: all 0.6s var(--ease);
+}
+.urgency-badge .urgency-pct {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink-soft);
+  font-feature-settings: 'lnum', 'tnum';
+  transition: color 0.6s var(--ease);
+}
+.urgency-badge .urgency-text {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: 4px;
+  color: var(--ink-mute);
+  transition: color 0.6s var(--ease);
+}
+.urgency-badge.level-0 { border-color: var(--zone-good); background: rgba(92, 145, 112, 0.08); }
+.urgency-badge.level-0 .urgency-pct,
+.urgency-badge.level-0 .urgency-text { color: var(--zone-good); }
+.urgency-badge.level-1 { border-color: var(--zone-warn); background: rgba(212, 168, 87, 0.12); }
+.urgency-badge.level-1 .urgency-pct,
+.urgency-badge.level-1 .urgency-text { color: #A6802F; }
+.urgency-badge.level-2 { border-color: var(--zone-bad); background: rgba(201, 125, 63, 0.12); }
+.urgency-badge.level-2 .urgency-pct,
+.urgency-badge.level-2 .urgency-text { color: var(--zone-bad); }
+.urgency-badge.level-3 { border-color: var(--zone-crit); background: var(--red-tint); }
+.urgency-badge.level-3 .urgency-pct,
+.urgency-badge.level-3 .urgency-text { color: var(--red); }
+
+.deadline-comfort {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.deadline-comfort-label { letter-spacing: 0.04em; }
+.deadline-comfort-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 540px) {
+  .deadline-comfort-value { font-size: 20px; }
+}
+
+.zone-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 14px;
+  font-size: 10px;
+  color: var(--ink-mute);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.zone-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.zone-legend .dot { width: 8px; height: 8px; border-radius: 2px; }
+
+/* MONTH */
+.month-display {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 30px;
+  font-weight: 700;
+  text-align: left;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  color: var(--ink);
+}
+.month-discount-line {
+  font-size: 13px;
+  margin-bottom: 18px;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+  color: var(--ink);
+}
+.month-discount-line.has {
+  color: var(--zone-good);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* Month marks — children positioned via calc() to match thumb */
+.month-marks {
+  position: relative;
+  height: 38px;
+  margin-top: 12px;
+}
+.month-marks .tick {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 4px;
+  background: var(--ink-mute);
+  opacity: 0.4;
+  transform: translateX(-50%);
+  transition: all 0.2s ease;
+}
+.month-marks .tick.current {
+  background: var(--red);
+  opacity: 1;
+  height: 6px;
+  width: 2px;
+}
+.month-marks .month-label {
+  position: absolute;
+  top: 10px;
+  font-size: 11px;
+  color: var(--ink-mute);
+  font-weight: 500;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  transition: color 0.2s ease;
+}
+.month-marks .month-label.current { color: var(--red); font-weight: 700; }
+.month-marks .lbl-short { display: none; }
+@media (max-width: 880px) {
+  .month-marks .lbl-full { display: none; }
+  .month-marks .lbl-short { display: inline; }
+  .month-marks .month-label { font-size: 10px; }
+}
+
+/* PROMO */
+.promo-input {
+  width: 100%;
+  padding: 14px 18px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px;
+  color: var(--ink);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  outline: none;
+  transition: all 0.2s ease;
+  border-radius: 2px;
+  font-weight: 500;
+}
+.promo-input:focus { border-color: var(--red); }
+.promo-input::placeholder {
+  color: var(--ink-mute);
+  text-transform: none;
+  letter-spacing: 0;
+  font-style: italic;
+  font-weight: 400;
+}
+.promo-status {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.promo-status.success { color: var(--zone-good); font-weight: 700; }
+.promo-status.fail { color: var(--ink-mute); }
+
+/* NEXT BUTTON */
+.next-wrap {
+  text-align: center;
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  overflow: hidden;
+  transition: max-height 0.6s var(--ease), opacity 0.5s ease, margin-top 0.6s var(--ease);
+  pointer-events: none;
+}
+.next-wrap.visible {
+  max-height: 100px;
+  opacity: 1;
+  margin-top: 28px;
+  pointer-events: auto;
+}
+.next-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 36px;
+  background: transparent;
+  border: 1.5px solid var(--red);
+  color: var(--red);
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s var(--ease);
+  border-radius: 2px;
+}
+.next-btn .arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+  font-size: 16px;
+  line-height: 1;
+}
+.next-btn:hover {
+  background: var(--red);
+  color: var(--paper);
+  letter-spacing: 0.22em;
+}
+.next-btn:hover .arrow { transform: translateY(4px); }
+
+/* BREAKDOWN */
+.breakdown {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 28px 32px;
+  width: 100%;
+}
+@media (max-width: 720px) { .breakdown { padding: 22px 20px; } }
+.bd-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 0;
+  font-size: 14px;
+  gap: 16px;
+  border-bottom: 1px dotted var(--line);
+}
+.bd-row:last-child { border-bottom: none; }
+.bd-row.item .label {
+  color: var(--ink);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 500;
+}
+.bd-row .label { color: var(--ink-soft); flex: 1; }
+.bd-row .value {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  color: var(--ink);
+  font-feature-settings: 'lnum', 'tnum';
+  font-size: 17px;
+  white-space: nowrap;
+  letter-spacing: -0.005em;
+}
+.bd-row .value.positive { color: var(--red); }
+.bd-row .value.negative { color: var(--zone-good); }
+.bd-divider { height: 1px; background: var(--line); margin: 12px 0; }
+.bd-row.summary {
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  border-bottom: none;
+}
+.bd-row.summary .label,
+.bd-row.summary .value { color: var(--ink); font-weight: 700; font-size: 17px; }
+.bd-row.final {
+  padding-top: 18px;
+  margin-top: 6px;
+  border-top: 2px solid var(--red);
+  border-bottom: none;
+}
+.bd-row.final .label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.bd-row.final .value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--red);
+  letter-spacing: -0.02em;
+}
+.bd-installment {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-style: italic;
+  text-align: right;
+}
+
+/* STICKY */
+.sticky {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--paper);
+  border-top: 2px solid var(--red);
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  transform: translateY(100%);
+  transition: transform 0.7s var(--ease);
+}
+.sticky.visible { transform: translateY(0); }
+.sticky-inner {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.sticky-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sticky-label {
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: 600;
+}
+.sticky-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--red);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-feature-settings: 'lnum', 'tnum';
+}
+.sticky-price-anim { animation: priceShift 0.6s var(--ease); }
+@keyframes priceShift {
+  from { opacity: 0.45; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.cta {
+  padding: 16px 32px;
+  background: var(--red);
+  color: var(--paper);
+  text-align: center;
+  text-decoration: none;
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s var(--ease);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+}
+.cta::after { content: '→'; display: inline-block; transition: transform 0.3s ease; font-size: 18px; }
+.cta:hover { background: var(--red-dark); letter-spacing: 0.2em; }
+.cta:hover::after { transform: translateX(6px); }
+@media (max-width: 720px) {
+  .sticky-inner { padding: 12px 18px; gap: 12px; }
+  .sticky-price { font-size: 28px; }
+  .cta { padding: 14px 18px; font-size: 12px; letter-spacing: 0.12em; }
+  .cta::after { font-size: 16px; }
+}
+
+/* LAYOUT — two-column on wide */
+.sidebar { display: none; }
+
+.layout-title { display: block; }
+
+@media (min-width: 1180px) {
+  .app { max-width: 1380px; padding-left: 40px; padding-right: 40px; }
+  body { padding-bottom: 36px; }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-rows: auto 1fr;
+    column-gap: 88px;
+    row-gap: 0;
+    align-items: start;
+  }
+  .layout-title {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .form-col {
+    min-width: 0;
+    max-width: 100%;
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .sidebar {
+    display: block;
+    position: sticky;
+    top: 24px;
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+  }
+  .sticky { display: none !important; }
+}
+
+.sidebar-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--red);
+  padding: 26px 28px 28px;
+}
+.sidebar-label {
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.sidebar-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 46px;
+  font-weight: 700;
+  color: var(--red);
+  letter-spacing: -0.025em;
+  line-height: 1;
+  font-feature-settings: 'lnum', 'tnum';
+  margin-bottom: 6px;
+  animation: priceShift 0.6s var(--ease);
+}
+.sidebar-comfort {
+  font-size: 11px;
+  color: var(--ink-mute);
+  margin-bottom: 22px;
+  letter-spacing: 0.02em;
+}
+.sidebar-section {
+  border-top: 1px solid var(--line-soft);
+  padding-top: 14px;
+  margin-bottom: 14px;
+}
+.sidebar-section:last-of-type { margin-bottom: 18px; }
+.sidebar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 8px 0;
+  gap: 10px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.sidebar-row:last-child { border-bottom: none; }
+.sidebar-row .label {
+  color: var(--ink);
+  flex: 1;
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+.sidebar-row .value {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--ink);
+  white-space: nowrap;
+  font-feature-settings: 'lnum', 'tnum';
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.sidebar-row .value.positive { color: var(--red); }
+.sidebar-row .value.negative { color: var(--zone-good); }
+.sidebar-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--red);
+  color: var(--paper);
+  text-decoration: none;
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s var(--ease);
+}
+.sidebar-cta::after { content: '→'; font-size: 16px; transition: transform 0.3s ease; }
+.sidebar-cta:hover { background: var(--red-dark); letter-spacing: 0.22em; }
+.sidebar-cta:hover::after { transform: translateX(4px); }
+.sidebar-cta-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px dashed var(--line);
+  color: var(--ink-mute);
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-style: italic;
+  text-align: center;
+}
+.sidebar-installment {
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-style: italic;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* MODAL — форма заявки */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 20, 16, 0.55);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+.modal-backdrop.open { opacity: 1; pointer-events: auto; }
+.modal-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--red);
+  width: 100%;
+  max-width: 480px;
+  padding: 36px 36px 32px;
+  position: relative;
+  transform: translateY(20px) scale(0.97);
+  opacity: 0;
+  transition: transform 0.5s var(--ease), opacity 0.4s ease;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+.modal-backdrop.open .modal-card { transform: translateY(0) scale(1); opacity: 1; }
+@media (max-width: 540px) { .modal-card { padding: 28px 22px 24px; } }
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 26px;
+  color: var(--ink-mute);
+  cursor: pointer;
+  padding: 6px 12px;
+  line-height: 1;
+  font-weight: 300;
+  font-family: 'Manrope', sans-serif;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.modal-close:hover { color: var(--red); transform: rotate(90deg); }
+.modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.modal-subtitle {
+  font-size: 13px;
+  color: var(--ink-mute);
+  margin-bottom: 22px;
+  line-height: 1.5;
+}
+.modal-summary {
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+  padding: 14px 16px;
+  margin-bottom: 22px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.modal-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.modal-summary-label {
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: 600;
+}
+.modal-summary-total {
+  font-family: 'Manrope', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--red);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.form-field { margin-bottom: 14px; }
+.form-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 6px;
+}
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s ease;
+  font-weight: 500;
+}
+.form-input:focus, .form-textarea:focus { border-color: var(--red); }
+.form-textarea { resize: vertical; min-height: 70px; max-height: 160px; }
+.form-input::placeholder, .form-textarea::placeholder {
+  color: var(--ink-mute);
+  font-weight: 400;
+}
+.form-submit {
+  width: 100%;
+  margin-top: 18px;
+  padding: 16px 24px;
+  background: var(--red);
+  color: var(--paper);
+  border: none;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s var(--ease);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.form-submit::after {
+  content: '→';
+  font-size: 18px;
+  transition: transform 0.3s ease;
+}
+.form-submit:hover:not(:disabled) {
+  background: var(--red-dark);
+  letter-spacing: 0.22em;
+}
+.form-submit:hover:not(:disabled)::after { transform: translateX(4px); }
+.form-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+.form-submit.loading::after { content: '⋯'; }
+.form-error {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--red-tint);
+  border-left: 3px solid var(--red);
+  color: var(--red);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.form-success { text-align: center; padding: 12px 0 8px; }
+.form-success-mark {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(92, 145, 112, 0.12);
+  border: 2px solid var(--zone-good);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+.form-success-mark::after {
+  content: '';
+  width: 14px;
+  height: 24px;
+  border: solid var(--zone-good);
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+  margin-top: -4px;
+}
+.form-success-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 8px;
+  letter-spacing: -0.015em;
+}
+.form-success-text {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+.form-vk-link {
+  display: block;
+  text-align: center;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 12px;
+  color: var(--ink-mute);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s ease;
+}
+.form-vk-link:hover { color: var(--red); }
+
+.sidebar-vk {
+  display: block;
+  text-align: center;
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--ink-mute);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  transition: color 0.2s ease;
+}
+.sidebar-vk:hover { color: var(--red); }
+.sticky .vk-secondary {
+  display: none;
+}
+
+/* NUMBER FONT — Manrope для всех числовых элементов (более читаемо чем Cormorant) */
+.field-value,
+.num-input,
+.deadline-num,
+.card-price,
+.add-item-price,
+.sub-item-price,
+.bd-row .value,
+.bd-row.summary .value,
+.bd-row.final .value,
+.sticky-price,
+.sidebar-price,
+.sidebar-row .value,
+.urgency-pct,
+.deadline-comfort-value {
+  font-family: 'Manrope', sans-serif;
+  letter-spacing: -0.005em;
+}
+.bd-row.final .value, .sticky-price, .sidebar-price { letter-spacing: -0.02em; }
+
+/* LOADING */
+.loading {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+</style>
+</head>
+<body>
+<div id="root"><div class="loading">Загрузка</div></div>
+<script type="text/babel" data-presets="react">
+const { useState, useMemo, useEffect, useRef } = React;
+
+const MAIN_WORKS = [
+  { key: 'course',   name: 'Курсовая работа',          base: 10000,  complexity: 4,   defaultPages: 35,  minPages: 15,  maxPages: 80,  deadlineUnit: 'days' },
+  { key: 'bachelor', name: 'Бакалаврская ВКР',         base: 15000,  complexity: 12,  defaultPages: 60,  minPages: 30,  maxPages: 120, deadlineUnit: 'days' },
+  { key: 'master',   name: 'Магистерская ВКР',         base: 25000,  complexity: 18,  defaultPages: 80,  minPages: 50,  maxPages: 150, deadlineUnit: 'days' },
+  { key: 'phd',      name: 'Кандидатская диссертация', base: 100000, complexity: 100, defaultPages: 150, minPages: 100, maxPages: 250, deadlineUnit: 'months' },
+  { key: 'doctor',   name: 'Докторская диссертация',   base: 500000, complexity: 250, defaultPages: 300, minPages: 200, maxPages: 500, deadlineUnit: 'months' }
+];
+
+const ADDITIONAL_WORKS = [
+  { key: 'abstract',     name: 'Реферат',            base: 2000, complexity: 1,    defaultPages: 20, minPages: 10, maxPages: 40 },
+  { key: 'practice',     name: 'Отчёт по практике',  base: 4000, complexity: 2,    defaultPages: 15, minPages: 8,  maxPages: 30 },
+  { key: 'essay',        name: 'Эссе',               base: 500,  complexity: 0.25, defaultPages: null },
+  { key: 'presentation', name: 'Презентация',        base: 500,  complexity: 0.5,  defaultPages: null },
+  { key: 'homework',     name: 'Домашняя работа',    base: 500,  complexity: 0.25, defaultPages: null }
+];
+
+const ARTICLES = [
+  { key: 'rinc', name: 'Научная статья для РИНЦ', base: 4000,  complexity: 1 },
+  { key: 'vak',  name: 'Научная статья для ВАК',  base: 10000, complexity: 3 }
+];
+
+const STATS = [
+  { key: 'corr',           name: 'Корреляция (Пирсон / Спирмен)',              price: 2000, complexity: 0.5 },
+  { key: 'groups',         name: 'Сравнение групп (Манна-Уитни / Уилкоксон)',  price: 2000, complexity: 0.5 },
+  { key: 'chi',            name: 'Хи-квадрат Пирсона',                         price: 2000, complexity: 0.5 },
+  { key: 'normality',      name: 'Проверка нормальности',                      price: 1000, complexity: 0.25 },
+  { key: 'regression',     name: 'Множественная регрессия',                    price: 3000, complexity: 1 },
+  { key: 'variance',       name: 'Дисперсионный анализ',                       price: 3000, complexity: 1 },
+  { key: 'discriminant',   name: 'Дискриминантный анализ',                     price: 3000, complexity: 1 },
+  { key: 'factor',         name: 'Факторный анализ',                           price: 4000, complexity: 1.5 },
+  { key: 'interpretation', name: 'Написание интерпретации (~5 стр.)',          price: 2000, complexity: 0.5 }
+];
+
+const MONTHS = [
+  { num: 1,  name: 'Январь',   short: 'Янв', discount: 0  },
+  { num: 2,  name: 'Февраль',  short: 'Фев', discount: 20 },
+  { num: 3,  name: 'Март',     short: 'Мар', discount: 20 },
+  { num: 4,  name: 'Апрель',   short: 'Апр', discount: 10 },
+  { num: 5,  name: 'Май',      short: 'Май', discount: 0  },
+  { num: 6,  name: 'Июнь',     short: 'Июн', discount: 0  },
+  { num: 7,  name: 'Июль',     short: 'Июл', discount: 20 },
+  { num: 8,  name: 'Август',   short: 'Авг', discount: 20 },
+  { num: 9,  name: 'Сентябрь', short: 'Сен', discount: 20 },
+  { num: 10, name: 'Октябрь',  short: 'Окт', discount: 20 },
+  { num: 11, name: 'Ноябрь',   short: 'Ноя', discount: 10 },
+  { num: 12, name: 'Декабрь',  short: 'Дек', discount: 0  }
+];
+
+const PROMO_CODE = 'DIPLOMA2026';
+const PROMO_DISCOUNT = 10;
+const VK_LINK = 'https://vk.com/diplom_workshop';
+
+const COLOR = {
+  good: '#5C9170',
+  warn: '#D4A857',
+  bad:  '#C97D3F',
+  crit: '#C8102E'
+};
+
+const THUMB_W = 20;
+
+function thumbPosCalc(frac) {
+  const f = Math.max(0, Math.min(1, frac));
+  return `calc(${f.toFixed(6)} * (100% - ${THUMB_W}px) + ${THUMB_W / 2}px)`;
+}
+
+function formatPrice(n) {
+  return Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
+}
+
+function plural(n, forms) {
+  const abs = Math.abs(n);
+  const m10 = abs % 10;
+  const m100 = abs % 100;
+  if (m100 >= 11 && m100 <= 14) return forms[2];
+  if (m10 === 1) return forms[0];
+  if (m10 >= 2 && m10 <= 4) return forms[1];
+  return forms[2];
+}
+
+function getDeadlineMax(complexity, unit) {
+  if (unit === 'months') {
+    if (complexity <= 0) return 12;
+    const compMonths = complexity / 30;
+    return Math.min(36, Math.max(6, Math.ceil(compMonths * 3)));
+  }
+  if (complexity <= 0) return 30;
+  return Math.min(60, Math.max(14, Math.ceil(complexity * 3)));
+}
+
+function buildDeadlineGradient(complexity, min, max) {
+  if (complexity <= 0) return COLOR.good;
+  const range = max - min;
+  if (range <= 0) return COLOR.good;
+  const t1 = complexity / 2;
+  const t2 = (2 * complexity) / 3;
+  const t3 = complexity;
+  const f = (v) => Math.max(0, Math.min(1, (v - min) / range));
+  const p1 = thumbPosCalc(f(t1));
+  const p2 = thumbPosCalc(f(t2));
+  const p3 = thumbPosCalc(f(t3));
+  return `linear-gradient(to right,
+    ${COLOR.crit} 0%, ${COLOR.crit} ${p1},
+    ${COLOR.bad}  ${p1}, ${COLOR.bad}  ${p2},
+    ${COLOR.warn} ${p2}, ${COLOR.warn} ${p3},
+    ${COLOR.good} ${p3}, ${COLOR.good} 100%)`;
+}
+
+function buildMonthGradient() {
+  const stops = [];
+  MONTHS.forEach((m, i) => {
+    let aPos, bPos;
+    if (i === 0) aPos = '0%';
+    else aPos = thumbPosCalc((2 * i - 1) / 22);
+    if (i === 11) bPos = '100%';
+    else bPos = thumbPosCalc((2 * i + 1) / 22);
+    let c;
+    if (m.discount === 0) c = COLOR.crit;
+    else if (m.discount === 10) c = COLOR.warn;
+    else c = COLOR.good;
+    stops.push(`${c} ${aPos}`, `${c} ${bPos}`);
+  });
+  return `linear-gradient(to right, ${stops.join(', ')})`;
+}
+const MONTH_GRADIENT = buildMonthGradient();
+
+function smoothScrollTo(el, duration) {
+  if (!el || typeof window === 'undefined') return;
+  const startY = window.scrollY || window.pageYOffset || 0;
+  const targetY = el.getBoundingClientRect().top + startY - 24;
+  const distance = targetY - startY;
+  if (Math.abs(distance) < 4) return;
+  const dur = duration || 2000;
+  const startTime = performance.now();
+  // Sine ease-in-out — мягкое ускорение, мягкое торможение, симметрично
+  const ease = (t) => 0.5 - 0.5 * Math.cos(Math.PI * t);
+  const step = (now) => {
+    const elapsed = now - startTime;
+    const p = Math.min(elapsed / dur, 1);
+    const eased = ease(p);
+    window.scrollTo(0, startY + distance * eased);
+    if (p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function App() {
+  const [mainWork, setMainWork] = useState(null);
+  const [mainPages, setMainPages] = useState(35);
+  const [partial, setPartial] = useState(false);
+  const [partialPages, setPartialPages] = useState(20);
+  const [deadlineDays, setDeadlineDays] = useState(30);
+  const [deadlineMonths, setDeadlineMonths] = useState(6);
+  const [addWorks, setAddWorks] = useState({});
+  const [stats, setStats] = useState({});
+  const [articles, setArticles] = useState({});
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [promo, setPromo] = useState('');
+  const [showAdd, setShowAdd] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const [showArticle, setShowArticle] = useState(false);
+  const [step, setStep] = useState(1);
+
+  // Modal form state
+  const [showForm, setShowForm] = useState(false);
+  const [formName, setFormName] = useState('');
+  const [formContact, setFormContact] = useState('');
+  const [formComment, setFormComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submitDone, setSubmitDone] = useState(false);
+
+  // Серверные промокоды (подгружаются один раз при загрузке страницы)
+  const [serverPromos, setServerPromos] = useState(null);
+
+  const deadlineRef = useRef(null);
+  const orderRef = useRef(null);
+  const calcRef = useRef(null);
+
+  // Подгрузить промокоды с сервера
+  useEffect(() => {
+    fetch('/api/promos')
+      .then(r => r.ok ? r.json() : null)
+      .then(j => {
+        if (j && j.promos && typeof j.promos === 'object') {
+          setServerPromos(j.promos);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Закрытие модалки по Escape
+  useEffect(() => {
+    if (!showForm) return;
+    const onKey = (e) => { if (e.key === 'Escape') setShowForm(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showForm]);
+
+  const advance = (target, ref) => {
+    setStep(s => Math.max(s, target));
+    requestAnimationFrame(() => {
+      if (ref && ref.current) smoothScrollTo(ref.current, 2000);
+    });
+  };
+
+  const mainWorkData = MAIN_WORKS.find(w => w.key === mainWork);
+  const deadlineUnit = mainWorkData ? mainWorkData.deadlineUnit : 'days';
+
+  const handleSelectMain = (key) => {
+    if (mainWork === key) {
+      setMainWork(null);
+      setPartial(false);
+      return;
+    }
+    const w = MAIN_WORKS.find(x => x.key === key);
+    setMainWork(key);
+    setMainPages(w.defaultPages);
+    setPartial(false);
+    setPartialPages(Math.max(1, Math.floor(w.defaultPages / 2)));
+    if (w.deadlineUnit === 'months') {
+      setDeadlineMonths(Math.min(36, Math.max(2, Math.ceil(w.complexity / 30 * 1.6))));
+    } else {
+      setDeadlineDays(Math.min(60, Math.max(7, Math.ceil(w.complexity * 2.5))));
+    }
+  };
+
+  const toggleAdd = (key) => {
+    setAddWorks(prev => {
+      const next = { ...prev };
+      if (next[key]) delete next[key];
+      else {
+        const w = ADDITIONAL_WORKS.find(x => x.key === key);
+        next[key] = { pages: w.defaultPages };
+      }
+      return next;
+    });
+  };
+  const setAddPages = (key, pages) => {
+    setAddWorks(prev => ({ ...prev, [key]: { ...prev[key], pages } }));
+  };
+  const toggleStat = (key) => {
+    setStats(prev => {
+      const next = { ...prev };
+      if (next[key]) delete next[key];
+      else next[key] = true;
+      return next;
+    });
+  };
+  const toggleArticle = (key) => {
+    setArticles(prev => {
+      const next = { ...prev };
+      if (next[key]) delete next[key];
+      else next[key] = true;
+      return next;
+    });
+  };
+
+  const calc = useMemo(() => {
+    let total = 0;
+    let complexity = 0;
+    const items = [];
+
+    if (mainWorkData) {
+      const w = mainWorkData;
+      let pricePos, complexPos, label = w.name;
+      if (partial) {
+        const r = Math.max(0, partialPages) / w.defaultPages;
+        pricePos = w.base * 0.3 + w.base * 0.7 * Math.pow(r, 0.75);
+        complexPos = w.complexity * Math.pow(r, 0.75);
+        label = w.name + ' · частично, ' + Math.max(0, partialPages) + ' стр.';
+      } else {
+        const safePages = Math.max(1, mainPages);
+        const r = safePages / w.defaultPages;
+        const k = Math.pow(r, 0.5);
+        pricePos = w.base * k;
+        complexPos = w.complexity * k;
+        label = w.name + ' · ' + safePages + ' стр.';
+      }
+      total += pricePos;
+      complexity += complexPos;
+      items.push({ name: label, price: pricePos });
+    }
+
+    Object.entries(addWorks).forEach(([key, settings]) => {
+      const w = ADDITIONAL_WORKS.find(x => x.key === key);
+      let pricePos, complexPos, label = w.name;
+      if (w.defaultPages !== null) {
+        const pages = Math.max(1, settings.pages || w.defaultPages);
+        const r = pages / w.defaultPages;
+        const k = Math.pow(r, 0.5);
+        pricePos = w.base * k;
+        complexPos = w.complexity * k;
+        label = w.name + ' · ' + pages + ' стр.';
+      } else {
+        pricePos = w.base;
+        complexPos = w.complexity;
+      }
+      total += pricePos;
+      complexity += complexPos;
+      items.push({ name: label, price: pricePos });
+    });
+
+    Object.entries(stats).forEach(([key, on]) => {
+      if (!on) return;
+      const s = STATS.find(x => x.key === key);
+      total += s.price;
+      complexity += s.complexity;
+      items.push({ name: s.name, price: s.price });
+    });
+
+    Object.entries(articles).forEach(([key, on]) => {
+      if (!on) return;
+      const a = ARTICLES.find(x => x.key === key);
+      if (!a) return;
+      total += a.base;
+      complexity += a.complexity;
+      items.push({ name: a.name, price: a.base });
+    });
+
+    const deadlineDaysEff = deadlineUnit === 'months' ? Math.max(1, deadlineMonths) * 30 : Math.max(1, deadlineDays);
+
+    let urgency = 0;
+    let level = 0;
+    let urgencyLabel = 'комфортно';
+    let ratio = 0;
+    if (complexity > 0 && deadlineDaysEff > 0) {
+      ratio = complexity / deadlineDaysEff;
+      if (ratio < 1.0) { urgency = 0;   level = 0; urgencyLabel = 'комфортно'; }
+      else if (ratio <= 1.5) { urgency = 30;  level = 1; urgencyLabel = 'ускоренно'; }
+      else if (ratio <= 2.0) { urgency = 60;  level = 2; urgencyLabel = 'интенсивно'; }
+      else { urgency = 100; level = 3; urgencyLabel = 'форсированно'; }
+    }
+
+    const monthData = MONTHS.find(m => m.num === month);
+    const seasonDiscount = monthData ? monthData.discount : 0;
+
+    // Промокод: серверный список приоритетнее, fallback на локальный
+    const promoUpper = promo.trim().toUpperCase();
+    let promoOk = false;
+    let promoDiscount = 0;
+    if (promoUpper) {
+      if (serverPromos && Object.keys(serverPromos).length > 0) {
+        if (serverPromos[promoUpper] !== undefined) {
+          promoOk = true;
+          promoDiscount = Number(serverPromos[promoUpper]) || 0;
+        }
+      } else if (promoUpper === PROMO_CODE) {
+        promoOk = true;
+        promoDiscount = PROMO_DISCOUNT;
+      }
+    }
+    const totalModifier = urgency - seasonDiscount - promoDiscount;
+    const finalPrice = total * (1 + totalModifier / 100);
+
+    return {
+      basePrice: total, complexity, ratio, urgency, level, urgencyLabel,
+      seasonDiscount, promoDiscount, promoOk, totalModifier, finalPrice, items,
+      hasItems: items.length > 0, deadlineDaysEff
+    };
+  }, [mainWorkData, mainPages, partial, partialPages, addWorks, stats, articles, month, promo, deadlineDays, deadlineMonths, deadlineUnit, serverPromos]);
+
+  const monthInfo = MONTHS.find(m => m.num === month);
+  const comfortDays = Math.max(1, Math.ceil(calc.complexity));
+
+  const deadlineMin = 1;
+  const deadlineMax = useMemo(
+    () => getDeadlineMax(calc.complexity, deadlineUnit),
+    [calc.complexity, deadlineUnit]
+  );
+
+  useEffect(() => {
+    if (deadlineUnit === 'days' && deadlineDays > deadlineMax) setDeadlineDays(deadlineMax);
+    if (deadlineUnit === 'months' && deadlineMonths > deadlineMax) setDeadlineMonths(deadlineMax);
+  }, [deadlineMax, deadlineUnit, deadlineDays, deadlineMonths]);
+
+  const deadlineValue = deadlineUnit === 'months' ? deadlineMonths : deadlineDays;
+  const setDeadlineValue = deadlineUnit === 'months' ? setDeadlineMonths : setDeadlineDays;
+  const deadlineValueShown = Math.min(Math.max(deadlineMin, deadlineValue), deadlineMax);
+
+  const deadlineGradient = useMemo(() => {
+    const compInUnit = deadlineUnit === 'months' ? calc.complexity / 30 : calc.complexity;
+    return buildDeadlineGradient(compInUnit, deadlineMin, deadlineMax);
+  }, [calc.complexity, deadlineUnit, deadlineMax]);
+
+  const deadlineUnitName = deadlineUnit === 'months'
+    ? plural(deadlineValueShown, ['месяц', 'месяца', 'месяцев'])
+    : plural(deadlineValueShown, ['день', 'дня', 'дней']);
+
+  const showStep2Next = calc.hasItems && step < 3;
+
+  const clampPages = (val, min, max) => Math.max(min, Math.min(max, val));
+
+  const openForm = () => {
+    setSubmitDone(false);
+    setSubmitError('');
+    setShowForm(true);
+  };
+
+  const submitOrder = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setSubmitError('');
+    if (!formName.trim()) { setSubmitError('Укажите имя'); return; }
+    if (!formContact.trim()) { setSubmitError('Укажите способ связи'); return; }
+    if (!calc.hasItems) { setSubmitError('Выберите хотя бы одну позицию'); return; }
+
+    const payload = {
+      name: formName.trim(),
+      contact: formContact.trim(),
+      comment: formComment.trim(),
+      config: {
+        items: calc.items,
+        basePrice: calc.basePrice,
+        urgency: calc.urgency,
+        urgencyLabel: calc.urgencyLabel,
+        seasonDiscount: calc.seasonDiscount,
+        promoCode: calc.promoOk ? promo.trim().toUpperCase() : '',
+        promoDiscount: calc.promoDiscount,
+        totalModifier: calc.totalModifier,
+        finalPrice: calc.finalPrice,
+        deadline: deadlineValueShown + ' ' + deadlineUnitName,
+        month: monthInfo.name,
+        comfortDays: comfortDays
+      }
+    };
+
+    setSubmitting(true);
+    try {
+      const r = await fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setSubmitError(json.error || 'Ошибка отправки. Попробуйте позже.');
+      } else {
+        setSubmitDone(true);
+        setFormName('');
+        setFormContact('');
+        setFormComment('');
+      }
+    } catch (err) {
+      setSubmitError('Ошибка сети. Проверьте интернет и попробуйте снова.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="app">
+      <header className="topbar">
+        <h1 className="topbar-main">Калькулятор стоимости</h1>
+        <div className="topbar-brand">Дипломная мастерская</div>
+      </header>
+
+      <div className="layout">
+      <h2 className="block-title layout-title">Выберите тип работы</h2>
+      <div className="form-col">
+
+      <section className="block">
+        <div className="cards">
+          {MAIN_WORKS.map(w => {
+            const sel = mainWork === w.key;
+            return (
+              <button
+                key={w.key}
+                type="button"
+                className={"card" + (sel ? " selected" : "")}
+                onClick={() => handleSelectMain(w.key)}
+              >
+                {sel && <span className="card-deselect" aria-hidden="true">✕</span>}
+                <span className="card-title">{w.name}</span>
+                <span className="card-price-label">Базовая стоимость</span>
+                <span className="card-price">{formatPrice(w.base)} ₽</span>
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            className={"card card-other" + (showAdd ? " open" : "")}
+            onClick={() => setShowAdd(!showAdd)}
+          >
+            <span className="card-other-plus">+</span>
+            <span className="card-title">Другие работы</span>
+          </button>
+        </div>
+
+        <div className={"expand" + (mainWorkData ? " open" : "")}>
+          <div className="expand-inner">
+            <div className="panel">
+              <div className="field">
+                <div className="field-row">
+                  <span className="field-label">Объём работы</span>
+                  <span className={"num-unit" + (partial ? " muted" : "")}>
+                    <input
+                      type="number"
+                      className={"num-input" + (partial ? " muted" : "")}
+                      value={mainPages}
+                      min={mainWorkData ? mainWorkData.minPages : 1}
+                      max={mainWorkData ? mainWorkData.maxPages : 999}
+                      disabled={partial}
+                      onChange={e => {
+                        const v = parseInt(e.target.value, 10);
+                        if (!isNaN(v)) setMainPages(v);
+                        else if (e.target.value === '') setMainPages(0);
+                      }}
+                      onBlur={() => {
+                        if (!mainWorkData) return;
+                        const v = clampPages(mainPages, mainWorkData.minPages, mainWorkData.maxPages);
+                        if (v !== mainPages) setMainPages(v);
+                      }}
+                    />
+                    <span className="unit">стр.</span>
+                  </span>
+                </div>
+                <div className="range-wrap">
+                  <input
+                    type="range"
+                    min={mainWorkData ? mainWorkData.minPages : 1}
+                    max={mainWorkData ? mainWorkData.maxPages : 100}
+                    value={mainWorkData ? clampPages(mainPages, mainWorkData.minPages, mainWorkData.maxPages) : mainPages}
+                    disabled={partial}
+                    onChange={e => setMainPages(+e.target.value)}
+                  />
+                </div>
+                <div className="field-hint">
+                  Стандартный объём — <span className="accent">{mainWorkData ? mainWorkData.defaultPages : '—'} стр.</span>
+                </div>
+              </div>
+
+              <div className="field">
+                <label className="checkbox">
+                  <input type="checkbox" checked={partial} onChange={e => setPartial(e.target.checked)} />
+                  <span className="checkbox-mark"></span>
+                  <span>Часть работы уже выполнена самостоятельно</span>
+                </label>
+                <div className={"expand" + (partial ? " open" : "")}>
+                  <div className="expand-inner">
+                    <div style={{paddingTop: 6}}>
+                      <div className="field-row">
+                        <span className="field-label">Сколько страниц нужно написать нам</span>
+                        <span className="num-unit">
+                          <input
+                            type="number"
+                            className="num-input"
+                            value={partialPages}
+                            min={1}
+                            max={mainWorkData ? mainWorkData.maxPages : 999}
+                            onChange={e => {
+                              const v = parseInt(e.target.value, 10);
+                              if (!isNaN(v)) setPartialPages(v);
+                              else if (e.target.value === '') setPartialPages(0);
+                            }}
+                            onBlur={() => {
+                              if (!mainWorkData) return;
+                              const v = clampPages(partialPages, 1, mainWorkData.maxPages);
+                              if (v !== partialPages) setPartialPages(v);
+                            }}
+                          />
+                          <span className="unit">стр.</span>
+                        </span>
+                      </div>
+                      <div className="range-wrap">
+                        <input
+                          type="range"
+                          min={1}
+                          max={mainWorkData ? mainWorkData.maxPages : 100}
+                          value={mainWorkData ? clampPages(partialPages, 1, mainWorkData.maxPages) : partialPages}
+                          onChange={e => setPartialPages(+e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={"expand" + (showAdd ? " open" : "")}>
+          <div className="expand-inner">
+            <div className="panel">
+              <div className="other-title">Дополнительные позиции</div>
+              <div className="add-list">
+
+                {/* 1. Stats spoiler */}
+                <div className="add-item">
+                  <div className="add-item-head">
+                    <button type="button"
+                      className={"spoiler-row" + (showStats ? ' open' : '')}
+                      onClick={() => setShowStats(!showStats)}>
+                      <span className="spoiler-mark">+</span>
+                      <span>Статистическая обработка данных</span>
+                    </button>
+                    <span className="add-item-price">от 1 000 ₽</span>
+                  </div>
+                  <div className={"expand" + (showStats ? ' open' : '')}>
+                    <div className="expand-inner">
+                      <div className="sub-list">
+                        {STATS.map(s => (
+                          <label key={s.key} className="sub-item">
+                            <input type="checkbox" checked={!!stats[s.key]} onChange={() => toggleStat(s.key)} />
+                            <span className="checkbox-mark"></span>
+                            <span className="sub-item-name">{s.name}</span>
+                            <span className="sub-item-price">{formatPrice(s.price)} ₽</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Реферат, 3. Article spoiler, 4-7. остальные */}
+                {(() => {
+                  const ORDER = ['abstract', '__articles__', 'practice', 'essay', 'presentation', 'homework'];
+                  return ORDER.map(slot => {
+                    if (slot === '__articles__') {
+                      return (
+                        <div key="articles-spoiler" className="add-item">
+                          <div className="add-item-head">
+                            <button type="button"
+                              className={"spoiler-row" + (showArticle ? ' open' : '')}
+                              onClick={() => setShowArticle(!showArticle)}>
+                              <span className="spoiler-mark">+</span>
+                              <span>Научная статья</span>
+                            </button>
+                            <span className="add-item-price">от 4 000 ₽</span>
+                          </div>
+                          <div className={"expand" + (showArticle ? ' open' : '')}>
+                            <div className="expand-inner">
+                              <div className="sub-list">
+                                {ARTICLES.map(a => (
+                                  <label key={a.key} className="sub-item">
+                                    <input type="checkbox" checked={!!articles[a.key]} onChange={() => toggleArticle(a.key)} />
+                                    <span className="checkbox-mark"></span>
+                                    <span className="sub-item-name">{a.name}</span>
+                                    <span className="sub-item-price">{formatPrice(a.base)} ₽</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    const w = ADDITIONAL_WORKS.find(x => x.key === slot);
+                    if (!w) return null;
+                    const enabled = !!addWorks[w.key];
+                    const settings = addWorks[w.key] || {};
+                    const pages = settings.pages || w.defaultPages || 0;
+                    return (
+                      <div key={w.key} className="add-item">
+                        <div className="add-item-head">
+                          <label className="checkbox add-item-name">
+                            <input type="checkbox" checked={enabled} onChange={() => toggleAdd(w.key)} />
+                            <span className="checkbox-mark"></span>
+                            <span>{w.name}</span>
+                          </label>
+                          <span className="add-item-price">{formatPrice(w.base)} ₽</span>
+                        </div>
+                        {w.defaultPages && (
+                          <div className={"expand" + (enabled ? " open" : "")}>
+                            <div className="expand-inner">
+                              <div className="add-item-controls">
+                                <div className="field-row">
+                                  <span className="field-label">Объём</span>
+                                  <span className="num-unit">
+                                    <input
+                                      type="number"
+                                      className="num-input"
+                                      value={pages}
+                                      min={w.minPages || 1}
+                                      max={w.maxPages || 999}
+                                      onChange={e => {
+                                        const v = parseInt(e.target.value, 10);
+                                        if (!isNaN(v)) setAddPages(w.key, v);
+                                        else if (e.target.value === '') setAddPages(w.key, 0);
+                                      }}
+                                      onBlur={() => {
+                                        const v = clampPages(pages, w.minPages || 1, w.maxPages || 999);
+                                        if (v !== pages) setAddPages(w.key, v);
+                                      }}
+                                    />
+                                    <span className="unit">стр.</span>
+                                  </span>
+                                </div>
+                                <div className="range-wrap">
+                                  <input
+                                    type="range"
+                                    min={w.minPages || 1}
+                                    max={w.maxPages || 50}
+                                    value={clampPages(pages, w.minPages || 1, w.maxPages || 50)}
+                                    onChange={e => setAddPages(w.key, +e.target.value)}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  });
+                })()}
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={"next-wrap" + (showStep2Next ? " visible" : "")}>
+          <button className="next-btn" type="button" onClick={() => advance(3, deadlineRef)}>
+            Далее <span className="arrow">↓</span>
+          </button>
+        </div>
+      </section>
+
+      <div className={"expand" + (step >= 3 ? " open" : "")}>
+        <div className="expand-inner">
+          <section className="block" ref={deadlineRef}>
+            <h2 className="block-title left">Срок выполнения</h2>
+            <div className="panel">
+              <div className="deadline-head">
+                <div className="deadline-main">
+                  <div className="deadline-main-label">установленный срок</div>
+                  <div className="deadline-main-value">
+                    <input
+                      type="number"
+                      className="deadline-num"
+                      value={deadlineValueShown}
+                      min={deadlineMin}
+                      max={deadlineMax}
+                      onChange={e => {
+                        const v = parseInt(e.target.value, 10);
+                        if (!isNaN(v) && v >= 0) setDeadlineValue(v);
+                        else if (e.target.value === '') setDeadlineValue(0);
+                      }}
+                      onBlur={() => {
+                        const v = Math.max(deadlineMin, Math.min(deadlineMax, deadlineValueShown));
+                        if (v !== deadlineValue) setDeadlineValue(v);
+                      }}
+                    />
+                    <span className="deadline-unit">{deadlineUnitName}</span>
+                  </div>
+                </div>
+                <div className={"urgency-badge level-" + calc.level}>
+                  <span className="urgency-pct">{calc.urgency > 0 ? '+' + calc.urgency + '%' : '0%'}</span>
+                  <span className="urgency-text">{calc.urgencyLabel}</span>
+                </div>
+              </div>
+
+              <div className="range-wrap">
+                <input
+                  type="range"
+                  min={deadlineMin}
+                  max={deadlineMax}
+                  value={deadlineValueShown}
+                  onChange={e => setDeadlineValue(+e.target.value)}
+                  style={{ '--track-bg': deadlineGradient }}
+                />
+              </div>
+
+              <div className="deadline-comfort">
+                <span className="deadline-comfort-label">Комфортно для авторов —</span>
+                <span className="deadline-comfort-value">{comfortDays} {plural(comfortDays, ['день', 'дня', 'дней'])}</span>
+              </div>
+
+              <div className="zone-legend">
+                <span><span className="dot" style={{background: COLOR.crit}}></span>форсированно +100%</span>
+                <span><span className="dot" style={{background: COLOR.bad}}></span>интенсивно +60%</span>
+                <span><span className="dot" style={{background: COLOR.warn}}></span>ускоренно +30%</span>
+                <span><span className="dot" style={{background: COLOR.good}}></span>комфортно</span>
+              </div>
+            </div>
+
+            <div className={"next-wrap" + (step < 4 ? " visible" : "")}>
+              <button className="next-btn" type="button" onClick={() => advance(4, orderRef)}>
+                Далее <span className="arrow">↓</span>
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div className={"expand" + (step >= 4 ? " open" : "")}>
+        <div className="expand-inner">
+          <section className="block" ref={orderRef}>
+            <h2 className="block-title left">Месяц оформления заказа</h2>
+            <div className="panel">
+              <div className="field" style={{marginBottom: 28}}>
+                <div className="month-display" key={month}>{monthInfo.name}</div>
+                <div className={"month-discount-line " + (monthInfo.discount > 0 ? 'has' : '')}>
+                  {monthInfo.discount > 0 ? '— скидка ' + monthInfo.discount + '%' : '— сезон высокого спроса, без скидки'}
+                </div>
+                <div className="range-wrap">
+                  <input
+                    type="range"
+                    min={1}
+                    max={12}
+                    value={month}
+                    onChange={e => setMonth(+e.target.value)}
+                    style={{ '--track-bg': MONTH_GRADIENT }}
+                  />
+                </div>
+                <div className="month-marks">
+                  {MONTHS.map((m, i) => {
+                    const frac = i / 11;
+                    return (
+                      <span
+                        key={'t'+m.num}
+                        className={"tick " + (month === m.num ? 'current' : '')}
+                        style={{ left: 'calc(' + frac + ' * (100% - 20px) + 10px)' }}
+                      />
+                    );
+                  })}
+                  {MONTHS.map((m, i) => {
+                    const frac = i / 11;
+                    let style;
+                    if (i === 0) {
+                      style = { left: '10px' };
+                    } else if (i === 11) {
+                      style = { right: '10px' };
+                    } else {
+                      style = {
+                        left: 'calc(' + frac + ' * (100% - 20px) + 10px)',
+                        transform: 'translateX(-50%)'
+                      };
+                    }
+                    return (
+                      <span
+                        key={'l'+m.num}
+                        className={"month-label " + (month === m.num ? 'current' : '')}
+                        style={style}
+                      >
+                        <span className="lbl-full">{m.name}</span>
+                        <span className="lbl-short">{m.short}</span>
+                      </span>
+                    );
+                  })}
+                </div>
+                <div className="zone-legend" style={{marginTop: 18}}>
+                  <span><span className="dot" style={{background: COLOR.crit}}></span>сезон высокого спроса</span>
+                  <span><span className="dot" style={{background: COLOR.warn}}></span>скидка 10%</span>
+                  <span><span className="dot" style={{background: COLOR.good}}></span>скидка 20%</span>
+                </div>
+              </div>
+
+              <div className="field">
+                <div className="field-row">
+                  <span className="field-label">Промокод</span>
+                </div>
+                <input
+                  type="text"
+                  className="promo-input"
+                  placeholder="Введите промокод"
+                  value={promo}
+                  onChange={e => setPromo(e.target.value)}
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+                {promo.trim() && (
+                  <div className={"promo-status " + (calc.promoOk ? 'success' : 'fail')}>
+                    {calc.promoOk ? '✓ Промокод применён · −' + PROMO_DISCOUNT + '%' : 'Промокод не распознан'}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className={"next-wrap" + (step < 5 ? " visible" : "")}>
+              <button className="next-btn" type="button" onClick={() => advance(5, calcRef)}>
+                Далее <span className="arrow">↓</span>
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div className={"expand" + (step >= 5 ? " open" : "")}>
+        <div className="expand-inner">
+          <section className="block" ref={calcRef}>
+            <h2 className="block-title left">Расчёт</h2>
+            <div className="breakdown">
+              {calc.items.map((item, idx) => (
+                <div key={idx} className="bd-row item">
+                  <span className="label">{item.name}</span>
+                  <span className="value">{formatPrice(item.price)} ₽</span>
+                </div>
+              ))}
+
+              {calc.items.length > 1 && (
+                <div className="bd-row summary">
+                  <span className="label">Базовая стоимость</span>
+                  <span className="value">{formatPrice(calc.basePrice)} ₽</span>
+                </div>
+              )}
+
+              {(calc.urgency > 0 || calc.seasonDiscount > 0 || calc.promoDiscount > 0) && (
+                <>
+                  <div className="bd-divider"></div>
+                  {calc.urgency > 0 && (
+                    <div className="bd-row">
+                      <span className="label">Наценка за срочность</span>
+                      <span className="value positive">+{calc.urgency}%</span>
+                    </div>
+                  )}
+                  {calc.seasonDiscount > 0 && (
+                    <div className="bd-row">
+                      <span className="label">Скидка · {monthInfo.name.toLowerCase()}</span>
+                      <span className="value negative">−{calc.seasonDiscount}%</span>
+                    </div>
+                  )}
+                  {calc.promoDiscount > 0 && (
+                    <div className="bd-row">
+                      <span className="label">Промокод {PROMO_CODE}</span>
+                      <span className="value negative">−{calc.promoDiscount}%</span>
+                    </div>
+                  )}
+                  <div className="bd-row summary">
+                    <span className="label">Итоговый модификатор</span>
+                    <span className={"value " + (calc.totalModifier > 0 ? 'positive' : calc.totalModifier < 0 ? 'negative' : '')}>
+                      {calc.totalModifier > 0 ? '+' : ''}{calc.totalModifier}%
+                    </span>
+                  </div>
+                </>
+              )}
+
+              <div className="bd-row final">
+                <span className="label">Итого</span>
+                <span className="value" key={Math.round(calc.finalPrice)}>{formatPrice(calc.finalPrice)} ₽</span>
+              </div>
+
+              {calc.finalPrice > 10000 && (
+                <div className="bd-installment">Возможна оплата в рассрочку — уточните индивидуально</div>
+              )}
+            </div>
+          </section>
+        </div>
+      </div>
+
+      </div>
+
+      <aside className="sidebar">
+        <div className="sidebar-card">
+          <div className="sidebar-label">Предварительная стоимость</div>
+          <div className="sidebar-price" key={Math.round(calc.finalPrice)}>
+            {formatPrice(calc.finalPrice)} ₽
+          </div>
+          {calc.hasItems && calc.complexity > 0 && (
+            <div className="sidebar-comfort">
+              комфортно для авторов · {comfortDays} {plural(comfortDays, ['день', 'дня', 'дней'])}
+            </div>
+          )}
+
+          {calc.items.length > 0 && (
+            <div className="sidebar-section">
+              {calc.items.map((item, idx) => (
+                <div key={idx} className="sidebar-row">
+                  <span className="label">{item.name}</span>
+                  <span className="value">{formatPrice(item.price)} ₽</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(calc.urgency > 0 || calc.seasonDiscount > 0 || calc.promoDiscount > 0) && (
+            <div className="sidebar-section">
+              {calc.urgency > 0 && (
+                <div className="sidebar-row">
+                  <span className="label">Срочность</span>
+                  <span className="value positive">+{calc.urgency}%</span>
+                </div>
+              )}
+              {calc.seasonDiscount > 0 && (
+                <div className="sidebar-row">
+                  <span className="label">Сезон · {monthInfo.name.toLowerCase()}</span>
+                  <span className="value negative">−{calc.seasonDiscount}%</span>
+                </div>
+              )}
+              {calc.promoDiscount > 0 && (
+                <div className="sidebar-row">
+                  <span className="label">Промокод</span>
+                  <span className="value negative">−{calc.promoDiscount}%</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {calc.hasItems ? (
+            <>
+              <button className="sidebar-cta" type="button" onClick={openForm}>
+                Отправить заявку
+              </button>
+              <a className="sidebar-vk" href={VK_LINK} target="_blank" rel="noopener noreferrer">
+                или написать в VK →
+              </a>
+            </>
+          ) : (
+            <div className="sidebar-cta-placeholder">
+              выберите тип работы
+            </div>
+          )}
+
+          {calc.finalPrice > 10000 && (
+            <div className="sidebar-installment">
+              Возможна оплата в рассрочку
+            </div>
+          )}
+        </div>
+      </aside>
+
+      </div>
+
+      <div
+        className={"modal-backdrop" + (showForm ? " open" : "")}
+        onClick={(e) => { if (e.target === e.currentTarget) setShowForm(false); }}
+      >
+        <div className="modal-card" role="dialog" aria-modal="true">
+          <button
+            type="button"
+            className="modal-close"
+            aria-label="Закрыть"
+            onClick={() => setShowForm(false)}
+          >×</button>
+
+          {!submitDone ? (
+            <>
+              <div className="modal-title">Отправить заявку</div>
+              <div className="modal-subtitle">
+                Мы свяжемся с вами и обсудим детали. Стоимость может измениться по результатам разговора.
+              </div>
+
+              <div className="modal-summary">
+                <div className="modal-summary-row">
+                  <span className="modal-summary-label">Предварительная стоимость</span>
+                  <span className="modal-summary-total">{formatPrice(calc.finalPrice)} ₽</span>
+                </div>
+              </div>
+
+              <form onSubmit={submitOrder}>
+                <div className="form-field">
+                  <label className="form-label" htmlFor="form-name">Как к вам обращаться</label>
+                  <input
+                    id="form-name"
+                    type="text"
+                    className="form-input"
+                    placeholder="Имя"
+                    value={formName}
+                    onChange={e => setFormName(e.target.value)}
+                    autoComplete="name"
+                    maxLength={150}
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label" htmlFor="form-contact">Способ связи</label>
+                  <input
+                    id="form-contact"
+                    type="text"
+                    className="form-input"
+                    placeholder="Телефон, telegram (@username), VK или email"
+                    value={formContact}
+                    onChange={e => setFormContact(e.target.value)}
+                    maxLength={250}
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label" htmlFor="form-comment">Комментарий (необязательно)</label>
+                  <textarea
+                    id="form-comment"
+                    className="form-textarea"
+                    placeholder="Тема работы, особые пожелания…"
+                    value={formComment}
+                    onChange={e => setFormComment(e.target.value)}
+                    rows={3}
+                    maxLength={1500}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className={"form-submit" + (submitting ? " loading" : "")}
+                  disabled={submitting}
+                >
+                  {submitting ? 'Отправляется' : 'Отправить заявку'}
+                </button>
+
+                {submitError && <div className="form-error">{submitError}</div>}
+
+                <a
+                  className="form-vk-link"
+                  href={VK_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  или написать нам напрямую в VK →
+                </a>
+              </form>
+            </>
+          ) : (
+            <div className="form-success">
+              <div className="form-success-mark"></div>
+              <div className="form-success-title">Заявка отправлена</div>
+              <div className="form-success-text">
+                Мы свяжемся с вами в ближайшее время и обсудим детали заказа.
+              </div>
+              <a
+                className="form-vk-link"
+                href={VK_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                написать дополнительно в VK →
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className={"sticky" + (calc.hasItems ? " visible" : "")}>
+        <div className="sticky-inner">
+          <div className="sticky-info">
+            <span className="sticky-label">Предварительная стоимость</span>
+            <span className="sticky-price sticky-price-anim" key={Math.round(calc.finalPrice)}>{formatPrice(calc.finalPrice)} ₽</span>
+          </div>
+          <button className="cta" type="button" onClick={openForm}>
+            Отправить заявку
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
