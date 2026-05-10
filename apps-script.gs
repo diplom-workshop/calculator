@@ -19,8 +19,12 @@ const PROMOS_SHEET = 'Промокоды';
 const TG_TOKEN = 'PASTE_BOT_TOKEN_HERE';
 const TG_CHAT  = 'PASTE_CHAT_ID_HERE';
 
-// Мониторинг — после скольки минут без heartbeat'а считаем что бот молчит
-const BOT_HEARTBEAT_THRESHOLD_MIN = 10;
+// Мониторинг — после скольки минут без heartbeat'а считаем что бот молчит.
+// Триггер checkBotAlive бежит раз в 10 мин, бот шлёт heartbeat раз в минуту.
+// Threshold 20 = алерт сработает только если бот пропустил 2 цикла подряд
+// (защита от случайных таймаутов и кратковременных сетевых сбоев).
+// Если хочешь алерты строже (раньше) — поставь 10. Спокойнее — 30.
+const BOT_HEARTBEAT_THRESHOLD_MIN = 20;
 // Сколько минут не повторять алерт «бот молчит» после первого
 const BOT_ALERT_COOLDOWN_MIN = 30;
 
