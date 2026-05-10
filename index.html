@@ -1352,46 +1352,35 @@ input[type=range]:disabled::-moz-range-thumb { background: var(--ink-mute); bord
   line-height: 1.5;
   margin-bottom: 8px;
 }
-.form-vk-link {
-  display: block;
-  text-align: center;
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line-soft);
-  font-size: 14px;
-  color: var(--ink-soft);
-  text-decoration: underline;
-  text-decoration-style: dotted;
-  text-decoration-color: var(--ink-mute);
-  text-underline-offset: 4px;
-  letter-spacing: 0.01em;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-.form-vk-link:hover {
-  color: var(--red);
-  text-decoration-color: var(--red);
-  text-decoration-style: solid;
-}
-
+.form-vk-link,
 .sidebar-vk {
   display: block;
-  text-align: center;
-  margin-top: 14px;
-  font-size: 14px;
+  width: fit-content;
+  margin: 14px auto 0;
+  padding: 10px 22px;
+  background: transparent;
   color: var(--ink-soft);
-  text-decoration: underline;
-  text-decoration-style: dotted;
-  text-decoration-color: var(--ink-mute);
-  text-underline-offset: 4px;
-  letter-spacing: 0.01em;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  transition: all 0.25s ease;
 }
+.form-vk-link:hover,
 .sidebar-vk:hover {
+  border-color: var(--red);
   color: var(--red);
-  text-decoration-color: var(--red);
-  text-decoration-style: solid;
+  background: var(--red-tint);
+  letter-spacing: 0.18em;
+}
+.form-vk-link {
+  margin-top: 18px;
+  padding-top: 10px;
 }
 .sticky .vk-secondary {
   display: none;

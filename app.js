@@ -275,7 +275,7 @@ function smoothScrollTo(el, duration) {
   const targetY = el.getBoundingClientRect().top + startY - 24;
   const distance = targetY - startY;
   if (Math.abs(distance) < 4) return;
-  const dur = duration || 2000;
+  const dur = duration || 1500;
   const startTime = performance.now();
   // Sine ease-in-out — мягкое ускорение, мягкое торможение, симметрично
   const ease = t => 0.5 - 0.5 * Math.cos(Math.PI * t);
@@ -335,9 +335,10 @@ function App() {
   useEffect(() => {
     if (!showAdd) return;
     if (typeof window === 'undefined' || window.innerWidth >= 720) return;
+    // Чуть подольше, чтобы expand-анимация панели успела расположить элемент
     const t = setTimeout(() => {
       if (otherPanelRef.current) smoothScrollTo(otherPanelRef.current, 1500);
-    }, 220);
+    }, 320);
     return () => clearTimeout(t);
   }, [showAdd]);
 
@@ -362,7 +363,7 @@ function App() {
   const advance = (target, ref) => {
     setStep(s => Math.max(s, target));
     requestAnimationFrame(() => {
-      if (ref && ref.current) smoothScrollTo(ref.current, 2000);
+      if (ref && ref.current) smoothScrollTo(ref.current, 1500);
     });
   };
   const mainWorkData = MAIN_WORKS.find(w => w.key === mainWork);
@@ -789,8 +790,6 @@ function App() {
   }, /*#__PURE__*/React.createElement("div", {
     className: "panel"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "other-title"
-  }, "\u0414\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u043F\u043E\u0437\u0438\u0446\u0438\u0438"), /*#__PURE__*/React.createElement("div", {
     className: "add-list"
   }, /*#__PURE__*/React.createElement("div", {
     className: "add-item"
