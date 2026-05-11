@@ -127,7 +127,7 @@ const STATS = [{
   complexity: 0.25
 }, {
   key: 'scales',
-  name: 'Подсчёт шкал по ключу',
+  name: 'Подсчёт шкал методики по ключу',
   price: 1000,
   complexity: 0.25
 }, {
@@ -820,7 +820,7 @@ function App() {
     onChange: e => setShowMainStats(e.target.checked)
   }), /*#__PURE__*/React.createElement("span", {
     className: "checkbox-mark"
-  }), /*#__PURE__*/React.createElement("span", null, "Обработать собранные мной данные")), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("span", null, "Использовать мои данные в эмпирической части")), /*#__PURE__*/React.createElement("div", {
     className: "expand" + (showMainStats ? " open" : "")
   }, /*#__PURE__*/React.createElement("div", {
     className: "expand-inner"
