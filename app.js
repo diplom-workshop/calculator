@@ -64,8 +64,8 @@ const ADDITIONAL_WORKS = [{
   base: 4000,
   complexity: 2,
   defaultPages: 15,
-  minPages: 8,
-  maxPages: 30
+  minPages: 5,
+  maxPages: 40
 }, {
   key: 'essay',
   name: 'Эссе',
@@ -84,6 +84,15 @@ const ADDITIONAL_WORKS = [{
   base: 500,
   complexity: 0.25,
   defaultPages: null
+}, {
+  key: 'originality',
+  name: 'Повышение оригинальности',
+  base: 100,
+  complexity: 0.05,
+  defaultPages: 30,
+  minPages: 5,
+  maxPages: 200,
+  pricePerPage: true
 }];
 const ARTICLES = [{
   key: 'rinc',
@@ -114,6 +123,11 @@ const STATS = [{
 }, {
   key: 'normality',
   name: 'Проверка нормальности',
+  price: 1000,
+  complexity: 0.25
+}, {
+  key: 'scales',
+  name: 'Перевод ответов в шкалы',
   price: 1000,
   complexity: 0.25
 }, {
@@ -302,6 +316,7 @@ function App() {
   const [promo, setPromo] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const [showMainStats, setShowMainStats] = useState(false);
   const [showArticle, setShowArticle] = useState(false);
   const [step, setStep] = useState(1);
 
@@ -462,10 +477,18 @@ function App() {
         label = w.name;
       if (w.defaultPages !== null) {
         const pages = Math.max(1, settings.pages || w.defaultPages);
-        const r = pages / w.defaultPages;
-        const k = Math.pow(r, 0.5);
-        pricePos = w.base * k;
-        complexPos = w.complexity * k;
+        if (w.pricePerPage) {
+          // Линейная цена за страницу (например, повышение оригинальности)
+          pricePos = w.base * pages;
+          complexPos = w.complexity * pages;
+        } else {
+          // Базовая работа: цена ~ sqrt(объём), чтобы маленькие работы не стоили копейки,
+          // а большие не уходили в стратосферу
+          const r = pages / w.defaultPages;
+          const k = Math.pow(r, 0.5);
+          pricePos = w.base * k;
+          complexPos = w.complexity * k;
+        }
         label = w.name + ' · ' + pages + ' стр.';
       } else {
         pricePos = w.base;
@@ -782,7 +805,45 @@ function App() {
     max: mainWorkData ? mainWorkData.maxPages : 100,
     value: mainWorkData ? clampPages(partialPages, 1, mainWorkData.maxPages) : partialPages,
     onChange: e => setPartialPages(+e.target.value)
-  }))))))))), /*#__PURE__*/React.createElement("div", {
+  })))))), /*#__PURE__*/React.createElement("div", {
+    className: "field"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "checkbox"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: showMainStats,
+    onChange: e => setShowMainStats(e.target.checked)
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "checkbox-mark"
+  }), /*#__PURE__*/React.createElement("span", null, "Обработка моих данных (мат. методы)")), /*#__PURE__*/React.createElement("div", {
+    className: "expand" + (showMainStats ? " open" : "")
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "expand-inner"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingTop: 6
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "field-hint",
+    style: {
+      marginBottom: 10
+    }
+  }, "✨ Не уверены, какие методы нужны? Напишите в заявке про вашу задачу — бесплатно подскажем, что именно понадобится."), /*#__PURE__*/React.createElement("div", {
+    className: "sub-list"
+  }, STATS.map(s => /*#__PURE__*/React.createElement("label", {
+    key: s.key,
+    className: "sub-item"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: !!stats[s.key],
+    onChange: () => toggleStat(s.key)
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "checkbox-mark"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "sub-item-name"
+  }, s.name), /*#__PURE__*/React.createElement("span", {
+    className: "sub-item-price"
+  }, formatPrice(s.price), " ₽"))))))))))), /*#__PURE__*/React.createElement("div", {
     className: "expand" + (showAdd ? " open" : ""),
     ref: otherPanelRef
   }, /*#__PURE__*/React.createElement("div", {
@@ -808,6 +869,9 @@ function App() {
   }, /*#__PURE__*/React.createElement("div", {
     className: "expand-inner"
   }, /*#__PURE__*/React.createElement("div", {
+    className: "field-hint",
+    style: { padding: "8px 12px 10px", fontSize: 13 }
+  }, "\u2728 \u041D\u0435 \u0443\u0432\u0435\u0440\u0435\u043D\u044B, \u043A\u0430\u043A\u0438\u0435 \u043C\u0435\u0442\u043E\u0434\u044B \u0432\u0430\u043C \u043D\u0443\u0436\u043D\u044B? \u041E\u043F\u0438\u0448\u0438\u0442\u0435 \u0437\u0430\u0434\u0430\u0447\u0443 \u0432 \u0437\u0430\u044F\u0432\u043A\u0435 \u2014 \u0431\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u043E \u043F\u043E\u0434\u0441\u043A\u0430\u0436\u0435\u043C, \u0447\u0442\u043E \u0438\u043C\u0435\u043D\u043D\u043E \u043F\u043E\u0434\u043E\u0439\u0434\u0451\u0442."), /*#__PURE__*/React.createElement("div", {
     className: "sub-list"
   }, STATS.map(s => /*#__PURE__*/React.createElement("label", {
     key: s.key,
@@ -823,7 +887,7 @@ function App() {
   }, s.name), /*#__PURE__*/React.createElement("span", {
     className: "sub-item-price"
   }, formatPrice(s.price), " \u20BD"))))))), (() => {
-    const ORDER = ['abstract', '__articles__', 'practice', 'essay', 'presentation', 'homework'];
+    const ORDER = ['abstract', '__articles__', 'practice', 'originality', 'essay', 'presentation', 'homework'];
     return ORDER.map(slot => {
       if (slot === '__articles__') {
         return /*#__PURE__*/React.createElement("div", {
@@ -880,7 +944,7 @@ function App() {
         className: "checkbox-mark"
       }), /*#__PURE__*/React.createElement("span", null, w.name)), /*#__PURE__*/React.createElement("span", {
         className: "add-item-price"
-      }, formatPrice(w.base), " \u20BD")), w.defaultPages && /*#__PURE__*/React.createElement("div", {
+      }, formatPrice(w.base), w.pricePerPage ? " \u20BD / \u0441\u0442\u0440." : " \u20BD")), w.defaultPages && /*#__PURE__*/React.createElement("div", {
         className: "expand" + (enabled ? " open" : "")
       }, /*#__PURE__*/React.createElement("div", {
         className: "expand-inner"
