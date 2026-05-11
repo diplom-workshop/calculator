@@ -87,7 +87,7 @@ const ADDITIONAL_WORKS = [{
 }, {
   key: 'originality',
   name: 'Повышение оригинальности',
-  base: 100,
+  base: 150,
   complexity: 0.05,
   defaultPages: 30,
   minPages: 5,
@@ -122,12 +122,12 @@ const STATS = [{
   complexity: 0.5
 }, {
   key: 'normality',
-  name: 'Проверка нормальности',
+  name: 'Проверка нормальности распределения',
   price: 1000,
   complexity: 0.25
 }, {
   key: 'scales',
-  name: 'Перевод ответов в шкалы',
+  name: 'Подсчёт шкал по ключу',
   price: 1000,
   complexity: 0.25
 }, {
@@ -451,10 +451,15 @@ function App() {
         complexPos,
         label = w.name;
       if (partial) {
-        const r = Math.max(0, partialPages) / w.defaultPages;
-        pricePos = w.base * 0.3 + w.base * 0.7 * Math.pow(r, 0.75);
-        complexPos = w.complexity * Math.pow(r, 0.75);
-        label = w.name + ' · частично, ' + Math.max(0, partialPages) + ' стр.';
+        // Частичное написание: линейный тариф за страницу, без базовой ставки.
+        // Цена за страницу выше, чем при написании всей работы: вписаться в уже готовый
+        // текст и выдержать чужой стиль сложнее, чем писать с нуля. Множитель 1.4.
+        const PARTIAL_RATE_MULT = 1.4;
+        const fullPerPage = w.base / w.defaultPages;
+        const pages = Math.max(0, partialPages);
+        pricePos = pages * fullPerPage * PARTIAL_RATE_MULT;
+        complexPos = pages * (w.complexity / w.defaultPages) * PARTIAL_RATE_MULT;
+        label = w.name + ' · частично, ' + pages + ' стр.';
       } else {
         const safePages = Math.max(1, mainPages);
         const r = safePages / w.defaultPages;
@@ -815,7 +820,7 @@ function App() {
     onChange: e => setShowMainStats(e.target.checked)
   }), /*#__PURE__*/React.createElement("span", {
     className: "checkbox-mark"
-  }), /*#__PURE__*/React.createElement("span", null, "Обработка моих данных (статистическая обработка)")), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("span", null, "Обработать собранные мной данные")), /*#__PURE__*/React.createElement("div", {
     className: "expand" + (showMainStats ? " open" : "")
   }, /*#__PURE__*/React.createElement("div", {
     className: "expand-inner"
