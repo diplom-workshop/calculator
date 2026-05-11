@@ -815,7 +815,7 @@ function App() {
     onChange: e => setShowMainStats(e.target.checked)
   }), /*#__PURE__*/React.createElement("span", {
     className: "checkbox-mark"
-  }), /*#__PURE__*/React.createElement("span", null, "Обработка моих данных (мат. методы)")), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("span", null, "Обработка моих данных (статистическая обработка)")), /*#__PURE__*/React.createElement("div", {
     className: "expand" + (showMainStats ? " open" : "")
   }, /*#__PURE__*/React.createElement("div", {
     className: "expand-inner"
