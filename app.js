@@ -79,6 +79,12 @@ const ADDITIONAL_WORKS = [{
   complexity: 0.5,
   defaultPages: null
 }, {
+  key: 'speech',
+  name: 'Речь к презентации',
+  base: 1000,
+  complexity: 0.25,
+  defaultPages: null
+}, {
   key: 'homework',
   name: 'Домашняя работа',
   base: 1000,
@@ -904,7 +910,7 @@ function App() {
   }, s.name), /*#__PURE__*/React.createElement("span", {
     className: "sub-item-price"
   }, s.customPrice ? "\u0438\u043D\u0434\u0438\u0432\u0438\u0434\u0443\u0430\u043B\u044C\u043D\u043E" : formatPrice(s.price) + " \u20BD"))))))), (() => {
-    const ORDER = ['abstract', '__articles__', 'practice', 'originality', 'essay', 'presentation', 'homework'];
+    const ORDER = ['abstract', '__articles__', 'practice', 'originality', 'essay', 'presentation', 'speech', 'homework'];
     return ORDER.map(slot => {
       if (slot === '__articles__') {
         return /*#__PURE__*/React.createElement("div", {
