@@ -150,6 +150,12 @@ const STATS = [{
   name: 'Факторный анализ',
   price: 4000,
   complexity: 1.5
+}, {
+  key: 'custom',
+  name: 'Более сложные статистические методы',
+  price: 0,
+  complexity: 0,
+  customPrice: true
 }];
 const MONTHS = [{
   num: 1,
@@ -505,6 +511,16 @@ function App() {
     Object.entries(stats).forEach(([key, on]) => {
       if (!on) return;
       const s = STATS.find(x => x.key === key);
+      if (s.customPrice) {
+        // "Более сложные статистические методы" — цена обсуждается индивидуально,
+        // не плюсуем в сумму и сложность, но показываем в смете.
+        items.push({
+          name: s.name,
+          price: null,
+          customPrice: true
+        });
+        return;
+      }
       total += s.price;
       complexity += s.complexity;
       items.push({
@@ -844,7 +860,7 @@ function App() {
     className: "sub-item-name"
   }, s.name), /*#__PURE__*/React.createElement("span", {
     className: "sub-item-price"
-  }, formatPrice(s.price), " ₽"))))))))))), /*#__PURE__*/React.createElement("div", {
+  }, s.customPrice ? "индивидуально" : formatPrice(s.price) + " ₽"))))))))))), /*#__PURE__*/React.createElement("div", {
     className: "expand" + (showAdd ? " open" : ""),
     ref: otherPanelRef
   }, /*#__PURE__*/React.createElement("div", {
@@ -887,7 +903,7 @@ function App() {
     className: "sub-item-name"
   }, s.name), /*#__PURE__*/React.createElement("span", {
     className: "sub-item-price"
-  }, formatPrice(s.price), " \u20BD"))))))), (() => {
+  }, s.customPrice ? "\u0438\u043D\u0434\u0438\u0432\u0438\u0434\u0443\u0430\u043B\u044C\u043D\u043E" : formatPrice(s.price) + " \u20BD"))))))), (() => {
     const ORDER = ['abstract', '__articles__', 'practice', 'originality', 'essay', 'presentation', 'homework'];
     return ORDER.map(slot => {
       if (slot === '__articles__') {
@@ -1210,7 +1226,7 @@ function App() {
     className: "label"
   }, item.name), /*#__PURE__*/React.createElement("span", {
     className: "value"
-  }, formatPrice(item.price), " \u20BD"))), calc.items.length > 1 && /*#__PURE__*/React.createElement("div", {
+  }, item.customPrice ? "\u0438\u043D\u0434\u0438\u0432\u0438\u0434\u0443\u0430\u043B\u044C\u043D\u043E" : formatPrice(item.price) + " \u20BD"))), calc.items.length > 1 && /*#__PURE__*/React.createElement("div", {
     className: "bd-row summary"
   }, /*#__PURE__*/React.createElement("span", {
     className: "label"
@@ -1271,7 +1287,7 @@ function App() {
     className: "label"
   }, item.name), /*#__PURE__*/React.createElement("span", {
     className: "value"
-  }, formatPrice(item.price), " \u20BD")))), (calc.urgency > 0 || calc.seasonDiscount > 0 || calc.promoDiscount > 0) && /*#__PURE__*/React.createElement("div", {
+  }, item.customPrice ? "\u0438\u043D\u0434\u0438\u0432\u0438\u0434\u0443\u0430\u043B\u044C\u043D\u043E" : formatPrice(item.price) + " \u20BD")))), (calc.urgency > 0 || calc.seasonDiscount > 0 || calc.promoDiscount > 0) && /*#__PURE__*/React.createElement("div", {
     className: "sidebar-section"
   }, calc.urgency > 0 && /*#__PURE__*/React.createElement("div", {
     className: "sidebar-row"
