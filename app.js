@@ -69,19 +69,19 @@ const ADDITIONAL_WORKS = [{
 }, {
   key: 'essay',
   name: 'Эссе',
-  base: 500,
+  base: 1000,
   complexity: 0.25,
   defaultPages: null
 }, {
   key: 'presentation',
   name: 'Презентация',
-  base: 500,
+  base: 1000,
   complexity: 0.5,
   defaultPages: null
 }, {
   key: 'homework',
   name: 'Домашняя работа',
-  base: 500,
+  base: 1000,
   complexity: 0.25,
   defaultPages: null
 }, {
@@ -150,11 +150,6 @@ const STATS = [{
   name: 'Факторный анализ',
   price: 4000,
   complexity: 1.5
-}, {
-  key: 'interpretation',
-  name: 'Написание интерпретации (~5 стр.)',
-  price: 2000,
-  complexity: 0.5
 }];
 const MONTHS = [{
   num: 1,
@@ -221,6 +216,7 @@ const PROMO_CODE = 'DIPLOMA2026';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpMgh7uflqSwuhxEyxYWhNMShGx0IgTlmksWn2j-DQFUz9ZFr3M0GbMkb9GNwat3jK/exec';
 const PROMO_DISCOUNT = 10;
 const VK_LINK = 'https://vk.com/diplom_workshop';
+const TG_LINK = 'https://t.me/diplom_workshop_bot';
 const COLOR = {
   good: '#5C9170',
   warn: '#D4A857',
@@ -771,7 +767,7 @@ function App() {
     onChange: e => setPartial(e.target.checked)
   }), /*#__PURE__*/React.createElement("span", {
     className: "checkbox-mark"
-  }), /*#__PURE__*/React.createElement("span", null, "\u0427\u0430\u0441\u0442\u044C \u0440\u0430\u0431\u043E\u0442\u044B \u0443\u0436\u0435 \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0430 \u0441\u0430\u043C\u043E\u0441\u0442\u043E\u044F\u0442\u0435\u043B\u044C\u043D\u043E")), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("span", null, "\u041D\u0443\u0436\u043D\u043E \u043D\u0430\u043F\u0438\u0441\u0430\u0442\u044C \u0442\u043E\u043B\u044C\u043A\u043E \u0447\u0430\u0441\u0442\u044C \u0440\u0430\u0431\u043E\u0442\u044B")), /*#__PURE__*/React.createElement("div", {
     className: "expand" + (partial ? " open" : "")
   }, /*#__PURE__*/React.createElement("div", {
     className: "expand-inner"
@@ -1299,12 +1295,19 @@ function App() {
     className: "sidebar-cta",
     type: "button",
     onClick: openForm
-  }, "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u0437\u0430\u044F\u0432\u043A\u0443"), /*#__PURE__*/React.createElement("a", {
+  }, "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u0437\u0430\u044F\u0432\u043A\u0443"), /*#__PURE__*/React.createElement("div", {
+    className: "contact-pair"
+  }, /*#__PURE__*/React.createElement("a", {
     className: "sidebar-vk",
     href: VK_LINK,
     target: "_blank",
     rel: "noopener noreferrer"
-  }, "\u0438\u043B\u0438 \u043D\u0430\u043F\u0438\u0441\u0430\u0442\u044C \u0432 VK \u2192")) : /*#__PURE__*/React.createElement("div", {
+  }, "\u041D\u0430\u043F\u0438\u0441\u0430\u0442\u044C \u0432 VK \u2192"), /*#__PURE__*/React.createElement("a", {
+    className: "sidebar-tg",
+    href: TG_LINK,
+    target: "_blank",
+    rel: "noopener noreferrer"
+  }, "\u041D\u0430\u043F\u0438\u0441\u0430\u0442\u044C \u0432 Telegram \u2192"))) : /*#__PURE__*/React.createElement("div", {
     className: "sidebar-cta-placeholder"
   }, "\u0432\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0442\u0438\u043F \u0440\u0430\u0431\u043E\u0442\u044B"), calc.finalPrice > 10000 && /*#__PURE__*/React.createElement("div", {
     className: "sidebar-installment"
@@ -1382,12 +1385,19 @@ function App() {
     disabled: submitting
   }, submitting ? 'Отправляется' : 'Отправить заявку'), submitError && /*#__PURE__*/React.createElement("div", {
     className: "form-error"
-  }, submitError), /*#__PURE__*/React.createElement("a", {
-    className: "form-vk-link",
+  }, submitError), /*#__PURE__*/React.createElement("div", {
+    className: "contact-pair"
+  }, /*#__PURE__*/React.createElement("a", {
+    className: "form-vk-link in-pair",
     href: VK_LINK,
     target: "_blank",
     rel: "noopener noreferrer"
-  }, "\u0438\u043B\u0438 \u043D\u0430\u043F\u0438\u0441\u0430\u0442\u044C \u043D\u0430\u043C \u043D\u0430\u043F\u0440\u044F\u043C\u0443\u044E \u0432 VK \u2192"))) : /*#__PURE__*/React.createElement("div", {
+  }, "\u041D\u0430\u043F\u0438\u0441\u0430\u0442\u044C \u0432 VK \u2192"), /*#__PURE__*/React.createElement("a", {
+    className: "form-tg-link in-pair",
+    href: TG_LINK,
+    target: "_blank",
+    rel: "noopener noreferrer"
+  }, "\u041D\u0430\u043F\u0438\u0441\u0430\u0442\u044C \u0432 Telegram \u2192")))) : /*#__PURE__*/React.createElement("div", {
     className: "form-success"
   }, /*#__PURE__*/React.createElement("div", {
     className: "form-success-mark"
@@ -1395,12 +1405,19 @@ function App() {
     className: "form-success-title"
   }, "\u0417\u0430\u044F\u0432\u043A\u0430 \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0430"), /*#__PURE__*/React.createElement("div", {
     className: "form-success-text"
-  }, "\u041C\u044B \u0441\u0432\u044F\u0436\u0435\u043C\u0441\u044F \u0441 \u0432\u0430\u043C\u0438 \u0432 \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0435\u0435 \u0432\u0440\u0435\u043C\u044F \u0438 \u043E\u0431\u0441\u0443\u0434\u0438\u043C \u0434\u0435\u0442\u0430\u043B\u0438 \u0437\u0430\u043A\u0430\u0437\u0430."), /*#__PURE__*/React.createElement("a", {
-    className: "form-vk-link",
+  }, "\u041C\u044B \u0441\u0432\u044F\u0436\u0435\u043C\u0441\u044F \u0441 \u0432\u0430\u043C\u0438 \u0432 \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0435\u0435 \u0432\u0440\u0435\u043C\u044F \u0438 \u043E\u0431\u0441\u0443\u0434\u0438\u043C \u0434\u0435\u0442\u0430\u043B\u0438 \u0437\u0430\u043A\u0430\u0437\u0430."), /*#__PURE__*/React.createElement("div", {
+    className: "contact-pair"
+  }, /*#__PURE__*/React.createElement("a", {
+    className: "form-vk-link in-pair",
     href: VK_LINK,
     target: "_blank",
     rel: "noopener noreferrer"
-  }, "\u043D\u0430\u043F\u0438\u0441\u0430\u0442\u044C \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u043E \u0432 VK \u2192")))), /*#__PURE__*/React.createElement("div", {
+  }, "\u041D\u0430\u043F\u0438\u0441\u0430\u0442\u044C \u0432 VK \u2192"), /*#__PURE__*/React.createElement("a", {
+    className: "form-tg-link in-pair",
+    href: TG_LINK,
+    target: "_blank",
+    rel: "noopener noreferrer"
+  }, "\u041D\u0430\u043F\u0438\u0441\u0430\u0442\u044C \u0432 Telegram \u2192"))))), /*#__PURE__*/React.createElement("div", {
     className: "sticky" + (calc.hasItems ? " visible" : "")
   }, /*#__PURE__*/React.createElement("div", {
     className: "sticky-inner"

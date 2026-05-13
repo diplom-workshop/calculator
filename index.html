@@ -1353,8 +1353,8 @@ input[type=range]:disabled::-moz-range-thumb { background: var(--ink-mute); bord
   line-height: 1.5;
   margin-bottom: 8px;
 }
-.form-vk-link,
-.sidebar-vk {
+.form-vk-link, .form-tg-link,
+.sidebar-vk,   .sidebar-tg {
   display: block;
   width: fit-content;
   margin: 14px auto 0;
@@ -1372,16 +1372,31 @@ input[type=range]:disabled::-moz-range-thumb { background: var(--ink-mute); bord
   text-align: center;
   transition: all 0.25s ease;
 }
-.form-vk-link:hover,
-.sidebar-vk:hover {
+.form-vk-link:hover, .form-tg-link:hover,
+.sidebar-vk:hover,   .sidebar-tg:hover {
   border-color: var(--red);
   color: var(--red);
   background: var(--red-tint);
   letter-spacing: 0.18em;
 }
-.form-vk-link {
+.form-vk-link, .form-tg-link {
   margin-top: 18px;
   padding-top: 10px;
+}
+.contact-pair {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 14px auto 0;
+  flex-wrap: wrap;
+}
+.contact-pair > a {
+  margin: 0;
+  flex: 1 1 0;
+  min-width: 130px;
+}
+.form-vk-link.in-pair, .form-tg-link.in-pair {
+  margin-top: 0;
 }
 .sticky .vk-secondary {
   display: none;
