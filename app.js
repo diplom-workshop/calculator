@@ -14,6 +14,15 @@ const MAIN_WORKS = [{
   maxPages: 80,
   deadlineUnit: 'days'
 }, {
+  key: 'retraining',
+  name: 'ВКР переподготовки',
+  base: 12000,
+  complexity: 8,
+  defaultPages: 35,
+  minPages: 25,
+  maxPages: 70,
+  deadlineUnit: 'days'
+}, {
   key: 'bachelor',
   name: 'Бакалаврская ВКР',
   base: 15000,

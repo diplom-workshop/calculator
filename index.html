@@ -196,11 +196,17 @@ body {
 .card.selected:hover .card-deselect { color: var(--paper); transform: scale(1.15); }
 
 .card-other {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  gap: 8px;
   border-style: dashed;
   border-color: var(--ink-mute);
   background: transparent;
   justify-content: center;
   align-items: center;
+  min-height: 0;
+  padding-top: 14px;
+  padding-bottom: 14px;
 }
 .card-other .card-title {
   color: var(--ink);
