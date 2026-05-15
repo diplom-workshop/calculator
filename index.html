@@ -118,6 +118,10 @@ body {
 /* без сайдбара — широкая полоса, помещаются 6 в ряд */
 @media (min-width: 880px) and (max-width: 1179px) {
   .cards { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  /* колонки узкие — уменьшаем заголовок и убираем лишний правый отступ,
+     чтобы длинные слова ("Переподготовка") не выходили за карточку */
+  .card-title { font-size: 15px; padding-right: 10px; }
+  .card { padding: 14px 12px 16px; }
 }
 /* при сайдбаре: 3 колонки — иначе текст карточек не помещается */
 @media (max-width: 540px) {
@@ -157,6 +161,8 @@ body {
   letter-spacing: -0.01em;
   line-height: 1.15;
   padding-right: 18px;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 .card-price-label {
   font-size: 10px;

@@ -15,8 +15,8 @@ const MAIN_WORKS = [{
   deadlineUnit: 'days'
 }, {
   key: 'retraining',
-  name: 'ВКР переподготовки',
-  base: 12000,
+  name: 'Переподготовка ВКР',
+  base: 10000,
   complexity: 8,
   defaultPages: 35,
   minPages: 25,
